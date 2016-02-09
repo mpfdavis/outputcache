@@ -10,11 +10,9 @@ Simple to use, load-tested, outputcache for node - supports caching the response
 
 This module will wrap any route returning json or html and seamlessly cache the output, status and headers for future responses, preventing continous re-rendering or other expensive operations that will inhibit performance under load.
 
-## Notes
+## Importance
 
-- No longer checks the process and will cache output for all NODE_ENV - checking process is an expensive operation so this is now avoided
-- Now uses stale-lru-cache - this uses Maps for storage and is many, many times faster than Objects. The popular lru-cache was found to leak memory and slow under load
-- useCacheHeader now defaults to true
+Under heavy load, some Node applications can suffer poor performance even if they make use of cached data. This happens because the overhead of any significant computational work is greatly magnified under load and can become blocking for the event loop. Output caching saves the final response from your application for a given request signature and returns it from memory, complete with the original status and headers. 
 
 ## Initialize
 
@@ -34,7 +32,7 @@ var cache = new OutputCache({ varyByQuery: true, logger: winston, varyByCookies:
 
 **Note:** varyByCookies requires you to register a cookie parser such as the popular 'cookie-parser' module in your application before outputcache. Express no longer does this by default.
 
-## Usage:
+## Usage
 
 - Place in route or middleware
 
@@ -63,7 +61,7 @@ app.get('/api/:channel', cache.middleware, dataMiddleware,  function (req, res) 
 
 ```
 
-## Headers:
+## Headers
 
 - Will add 'X-Output-Cache' to the response headers with a ms (miss) or ht (hit) value
 - Will honour headers and status codes assigned to the original response, including for redirects
@@ -74,3 +72,16 @@ A cache skip (miss) will occur for all requests when:
 
 - If the querystring collection contains 'cache=false' value pair.
 - The request has an 'X-Output-Cache' header set with the value 'ms'
+
+## What's new?
+
+- No longer checks the process and will cache output for all NODE_ENV - checking process is an expensive operation so this is now avoided. If you don't want to use outputcache in dev mode, it's easy enough to manage this outside of the module
+- Now uses stale-lru-cache - this uses Maps for storage and is many, many times faster than Objects. The popular 'lru-cache' was found to leak memory and become slow under heavy load
+- useCacheHeader now defaults to true - the module will seek to use cache-control max-age for ttl unless this is set to false
+
+## Coming Soon
+- Option to skip 4xx, 3xx, 5xx
+- Option varyByUserAgent
+- Option to use any cache provider e.g. memcache
+- Log misses
+- Cache skip via cookie
