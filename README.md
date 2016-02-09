@@ -10,9 +10,12 @@ Simple to use, load-tested, outputcache for node - supports caching the response
 
 This module will wrap any route returning json or html and seamlessly cache the output, status and headers for future responses, preventing continous re-rendering or other expensive operations that will inhibit performance under load.
 
-## Importance
+## Why?
 
-Under heavy load, some Node applications can suffer poor performance even if they make use of cached data. This happens because the overhead of any significant computational work is greatly magnified under load and can become blocking for the event loop. Output caching saves the final response from your application for a given request signature and returns it from memory, complete with the original status and headers. 
+Under heavy load, Node applications can suffer poor performance even if they make use of cached data.
+
+- Fast, returns raw response and optimises hit-ratio by discarding least recently used items first
+- Simple, honours cache-control and requires little code changes
 
 ## Initialize
 
@@ -66,7 +69,7 @@ app.get('/api/:channel', cache.middleware, dataMiddleware,  function (req, res) 
 - Will add 'X-Output-Cache' to the response headers with a ms (miss) or ht (hit) value
 - Will honour headers and status codes assigned to the original response, including for redirects
 
-## Cache skip:
+## Cache skip
 
 A cache skip (miss) will occur for all requests when:
 
