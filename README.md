@@ -1,5 +1,9 @@
 # outputcache
 
+[![Version](https://img.shields.io/npm/v/outputcache.svg)](https://www.npmjs.com/package/outputcache)
+[![License](https://img.shields.io/npm/l/outputcache.svg)](https://www.npmjs.com/package/outputcache)
+[![Build Status](https://travis-ci.org/mpfdavis/outputcache.svg?branch=master)](https://travis-ci.org/mpfdavis/outputcache)
+
 Simple to use, load-tested, outputcache for node - supports caching the response of **res.send, res.render, res.json**, **res.redirect** and all headers
 
 ## Install
