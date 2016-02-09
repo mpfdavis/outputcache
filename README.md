@@ -18,8 +18,8 @@ This module will wrap any route returning json or html and seamlessly cache the 
 
 Under heavy load, Node applications can suffer poor performance even if they make use of cached data.
 
-- Fast, returns raw response and optimises hit-ratio by discarding least recently used items first
-- Simple, honours cache-control and requires little code changes
+- Fast, returns raw response and uses optimised version of LRU cache by default
+- Simple, honours original headers and requires little code changes
 
 ## Initialize
 
