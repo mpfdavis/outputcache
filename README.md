@@ -3,6 +3,7 @@
 [![Version](https://img.shields.io/npm/v/outputcache.svg)](https://www.npmjs.com/package/outputcache)
 [![License](https://img.shields.io/npm/l/outputcache.svg)](https://www.npmjs.com/package/outputcache)
 [![Build Status](https://travis-ci.org/mpfdavis/outputcache.svg?branch=master)](https://travis-ci.org/mpfdavis/outputcache)
+[![Test Coverage](https://coveralls.io/repos/mpfdavis/outputcache/badge.svg?branch=master&service=github)](https://coveralls.io/github/mpfdavis/outputcache?branch=master)
 
 Simple to use, load-tested, outputcache for node - supports caching the response of **res.send, res.render, res.json**, **res.redirect** and all headers
 
@@ -70,7 +71,7 @@ app.get('/api/:channel', cache.middleware, dataMiddleware,  function (req, res) 
 
 ## Headers
 
-- Will add 'X-Output-Cache' to the response headers with a ms (miss) or ht (hit) value
+- Will add 'X-Output-Cache' to the response headers with a ms (miss) or ht +ttl (hit) value
 - Will honour headers and status codes assigned to the original response, including for redirects
 
 ## Cache skip
