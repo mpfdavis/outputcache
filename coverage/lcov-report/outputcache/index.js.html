@@ -1,0 +1,705 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <title>Code coverage report for outputcache/index.js</title>
+    <meta charset="utf-8" />
+    <link rel="stylesheet" href="../prettify.css" />
+    <link rel="stylesheet" href="../base.css" />
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <style type='text/css'>
+        .coverage-summary .sorter {
+            background-image: url(../sort-arrow-sprite.png);
+        }
+    </style>
+</head>
+<body>
+<div class='wrapper'>
+  <div class='pad1'>
+    <h1>
+      <a href="../index.html">all files</a> / <a href="index.html">outputcache/</a> index.js
+    </h1>
+    <div class='clearfix'>
+      <div class='fl pad1y space-right2'>
+        <span class="strong">100% </span>
+        <span class="quiet">Statements</span>
+        <span class='fraction'>80/80</span>
+      </div>
+      <div class='fl pad1y space-right2'>
+        <span class="strong">88.46% </span>
+        <span class="quiet">Branches</span>
+        <span class='fraction'>46/52</span>
+      </div>
+      <div class='fl pad1y space-right2'>
+        <span class="strong">100% </span>
+        <span class="quiet">Functions</span>
+        <span class='fraction'>7/7</span>
+      </div>
+      <div class='fl pad1y space-right2'>
+        <span class="strong">100% </span>
+        <span class="quiet">Lines</span>
+        <span class='fraction'>80/80</span>
+      </div>
+      <div class='fl pad1y'>
+        <span class="strong">1 branch</span>
+        <span class="quiet">Ignored</span>  &nbsp;&nbsp;&nbsp;&nbsp;
+      </div>
+    </div>
+  </div>
+  <div class='status-line high'></div>
+<pre><table class="coverage">
+<tr><td class="line-count quiet">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+20
+21
+22
+23
+24
+25
+26
+27
+28
+29
+30
+31
+32
+33
+34
+35
+36
+37
+38
+39
+40
+41
+42
+43
+44
+45
+46
+47
+48
+49
+50
+51
+52
+53
+54
+55
+56
+57
+58
+59
+60
+61
+62
+63
+64
+65
+66
+67
+68
+69
+70
+71
+72
+73
+74
+75
+76
+77
+78
+79
+80
+81
+82
+83
+84
+85
+86
+87
+88
+89
+90
+91
+92
+93
+94
+95
+96
+97
+98
+99
+100
+101
+102
+103
+104
+105
+106
+107
+108
+109
+110
+111
+112
+113
+114
+115
+116
+117
+118
+119
+120
+121
+122
+123
+124
+125
+126
+127
+128
+129
+130
+131
+132
+133
+134
+135
+136
+137
+138
+139
+140
+141
+142
+143
+144
+145
+146
+147
+148
+149
+150
+151
+152
+153
+154
+155
+156
+157
+158
+159
+160
+161
+162
+163
+164
+165
+166
+167
+168
+169
+170
+171
+172
+173
+174
+175
+176
+177
+178
+179
+180
+181
+182
+183
+184
+185
+186
+187
+188
+189
+190
+191
+192
+193
+194
+195
+196
+197
+198
+199
+200
+201
+202
+203
+204
+205
+206
+207
+208
+209
+210
+211
+212
+213</td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">3×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">3×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">3×</span>
+<span class="cline-any cline-yes">3×</span>
+<span class="cline-any cline-yes">3×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">3×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">4×</span>
+<span class="cline-any cline-yes">4×</span>
+<span class="cline-any cline-yes">4×</span>
+<span class="cline-any cline-yes">4×</span>
+<span class="cline-any cline-yes">4×</span>
+<span class="cline-any cline-yes">4×</span>
+<span class="cline-any cline-yes">4×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">4×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">3×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">15×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">15×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">15×</span>
+<span class="cline-any cline-yes">10×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">15×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">15×</span>
+<span class="cline-any cline-yes">15×</span>
+<span class="cline-any cline-yes">15×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">15×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">15×</span>
+<span class="cline-any cline-yes">2×</span>
+<span class="cline-any cline-yes">2×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">13×</span>
+<span class="cline-any cline-yes">13×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">29×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">29×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">29×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">28×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">28×</span>
+<span class="cline-any cline-yes">28×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">28×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">22×</span>
+<span class="cline-any cline-yes">22×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">3×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">28×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">28×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">28×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">15×</span>
+<span class="cline-any cline-yes">15×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">15×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">14×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">14×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">14×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">14×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">14×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">14×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">14×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">15×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1×</span>
+<span class="cline-any cline-yes">1×</span>
+<span class="cline-any cline-yes">1×</span>
+<span class="cline-any cline-yes">1×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">15×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">13×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">13×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">13×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">13×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">13×</span>
+<span class="cline-any cline-yes">10×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">13×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1×</span>
+<span class="cline-any cline-yes">1×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">12×</span>
+<span class="cline-any cline-yes">9×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">12×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">3×</span>
+<span class="cline-any cline-yes">3×</span></td><td class="text"><pre class="prettyprint lang-js">//cache provider
+var CacheManager = require('stale-lru-cache');
+//utils
+var _ = require('lodash');
+&nbsp;
+//settings
+var _options;
+var _localCacheTtl = 600;
+var _defaultMaxSize = 1000;
+&nbsp;
+//local cache
+var _localCache;
+&nbsp;
+function OutputCache(options) {
+&nbsp;
+	_options = options || <span class="branch-1 cbranch-no" title="branch not covered" >{};</span>
+	this.ttl = _options.ttl; //int
+	this.maxItems = _options.maxItems; //int
+	this.logger = _options.logger; //logger instance
+	this.varyByQuery = _options.varyByQuery; //bool
+	this.useCacheHeader = _options.useCacheHeader; //bool
+	this.varyByCookies = _options.varyByCookies; //array
+    
+    //instance
+    _localCache = new CacheManager({ maxSize: _options.maxItems || _defaultMaxSize, defaultTTL: _options.ttl || _localCacheTtl });
+}
+&nbsp;
+//private interface
+var _outputCache = {
+&nbsp;
+	helpers: {
+&nbsp;
+		setHeadersOnCacheItem: function onSetHeaders(req, res, cacheItem, headers) {
+            
+            //set passed in headers
+            cacheItem.headers = headers;
+            
+            //ensure this includes cache control
+			var responseCacheHeader = headers['cache-control'];
+            
+            if(!responseCacheHeader) {
+                cacheItem.headers['cache-control'] = 'max-age=' + (_options.ttl || _localCacheTtl);
+            }
+&nbsp;
+			return cacheItem;
+&nbsp;
+		},
+	    getTtlFromStr: function onGetTtlFromStr(str) {      
+&nbsp;
+			var regex = /\d+/;
+			var ttlFromStr = str.match(regex);
+			var ttlInt = _.parseInt(ttlFromStr, 10);
+&nbsp;
+			return ttlInt;
+&nbsp;
+		},
+		setLocalCache: function onSetLocalCache(cacheKey, cacheItem, ttlFromCacheHeader) {
+&nbsp;
+			//set response to cache, optionally using cache http header for ttl
+			if (_options.useCacheHeader === false) {           
+				cacheItem.ttl = _options.ttl || _localCacheTtl;
+				_localCache.set(cacheKey, cacheItem, cacheItem.ttl);
+			} else {
+			    cacheItem.ttl = ttlFromCacheHeader || (_options.ttl || _localCacheTtl);
+				_localCache.set(cacheKey, cacheItem, cacheItem.ttl);
+			}
+&nbsp;
+		}
+	},
+	middleware: function onOutputCache(req, res, next) {
+        
+        //headers collection
+        var resHeadersRaw = res._headers;
+&nbsp;
+		//support forced cache skip via querystring or cache miss headers
+		var isCacheSkip = ((resHeadersRaw['x-output-cache'] &amp;&amp; <span class="branch-1 cbranch-no" title="branch not covered" >resHeadersRaw['x-output-cache'] === 'ms')</span> || req.query.cache === "false");
+&nbsp;
+		if(isCacheSkip) {           
+			//set header to show this request missed output cache
+			res.set({'X-Output-Cache': 'ms'});
+			//exit early and flow to middleware
+			return next();
+		}
+&nbsp;
+		//simple cache key based url or path, lowercase all keys to limit key complexity
+		var cacheKey = _options.varyByQuery == false ? 'path-' + req.path : 'url-' + req.originalUrl;
+&nbsp;
+		//extend cache key with cookie values if requested
+		var cookies = req.cookies;
+		var cookieNameArray = _options.varyByCookies;
+&nbsp;
+		if(cookies &amp;&amp; cookieNameArray &amp;&amp; _.isArray(cookieNameArray) &amp;&amp; cookieNameArray.length &gt; 0) {
+&nbsp;
+			for(var i = 0; i &lt; cookieNameArray.length; i++){
+				if(cookies[cookieNameArray[i]]) {
+					//extend cache key with desired cookie value
+					cacheKey += ('-cookie-' + cookies[cookieNameArray[i]]);
+				}
+			}
+&nbsp;
+		}
+&nbsp;
+		//lower to help limit complexity
+		cacheKey = cacheKey.toLowerCase();
+&nbsp;
+		//check cache
+		var cacheResult = _localCache.get(cacheKey);
+&nbsp;
+			if (!cacheResult) {
+&nbsp;
+				/* cache for next time, override response methods */              
+				
+				res.sendOverride = res.send;
+				res.redirectOverride = res.redirect;
+&nbsp;
+				//override send (also used internally by res.render and res.json/p automatically)
+				res.send = function onOverrideSend(a, b) {
+&nbsp;
+				  //setup our cache object with headers
+				  var responseToCache = _outputCache.helpers.setHeadersOnCacheItem(req, res , {}, resHeadersRaw);
+&nbsp;
+		          //attach status and output of send to our obj
+		          responseToCache.status = !_.isUndefined(b) ? <span class="branch-0 cbranch-no" title="branch not covered" >a </span>: (_.isNumber(a) ? <span class="branch-0 cbranch-no" title="branch not covered" >a </span>: res.statusCode);
+&nbsp;
+		          //attach output html
+		          responseToCache.body = !_.isUndefined(b) ? <span class="branch-0 cbranch-no" title="branch not covered" >b </span>: (!_.isNumber(a) ? a : <span class="branch-1 cbranch-no" title="branch not covered" >null)</span>;
+&nbsp;
+		          //get max age header
+				  var ttlFromCacheHeader = _outputCache.helpers.getTtlFromStr(responseToCache.headers['cache-control']);
+&nbsp;
+		          //set response to cache, optionally using cache http header for ttl
+		          _outputCache.helpers.setLocalCache(cacheKey, responseToCache, ttlFromCacheHeader);
+&nbsp;
+		          //set http header cache miss
+		          res.set({'X-Output-Cache': 'ms'});
+&nbsp;
+		          //send origin rendered output
+		          return res.sendOverride(responseToCache.body);
+&nbsp;
+				}
+&nbsp;
+				//override redirect
+				res.redirect = function onOverrideRedirect(status, address) {
+				    
+				    //setup our cache object with headers
+					var redirectResponse = _outputCache.helpers.setHeadersOnCacheItem(req, res , {}, resHeadersRaw);
+					redirectResponse.original = req.originalUrl;
+					redirectResponse.redirect = address;
+					redirectResponse.status = status;
+&nbsp;
+					//get max age header
+				    var ttlFromCacheHeader = _outputCache.helpers.getTtlFromStr(redirectResponse.headers['cache-control']);                  
+                    
+		            //set response to cache, optionally using cache http header for ttl
+		            _outputCache.helpers.setLocalCache(cacheKey, redirectResponse, ttlFromCacheHeader);
+                    
+                    //set http header cache miss for this response
+		            res.set({'X-Output-Cache': 'ms'});
+&nbsp;
+		            //send origin redirect
+					return res.redirectOverride(status, address);
+				}
+&nbsp;
+				//exit to next middleware
+				return next();
+&nbsp;
+&nbsp;
+			} else {
+&nbsp;
+				/* serve straight from memory */
+&nbsp;
+				//set headers from cache, including ht
+				res.set(cacheResult.headers);
+                
+                res.set({'X-Output-Cache': 'ht ' + cacheResult.ttl})
+&nbsp;
+				//set status from cache
+				res.statusCode = cacheResult.status;
+                
+                //set logger
+                var logger = null;
+                
+                if(_options.logger &amp;&amp; _options.logger.info) {
+                    logger = _options.logger;
+                }
+&nbsp;
+				//redirects
+				if(cacheResult.redirect) {
+                    /* istanbul ignore else  */
+					<span class="skip-if-branch" title="else path not taken" >E</span>if(logger) {
+						logger.info(JSON.stringify({metric:'hit-ratio', name: 'outputcache redirect', desc:'outputcache redirect', data: { requestPath:  cacheResult.original, redirectAddress: cacheResult.redirect, status: cacheResult.status, cacheKey: cacheKey, ttl: cacheResult.ttl}})); 
+					}
+					//exit middleware with redirect
+					return res.redirect(cacheResult.status, cacheResult.redirect);
+				}
+&nbsp;
+				//sends/renders
+				if(logger) {                    
+					logger.info(JSON.stringify({metric:'hit-ratio', name: 'outputcache render', desc: 'outputcache hit', data:{requestPath: req.originalUrl, cacheKey: cacheKey, ttl: cacheResult.ttl}}));
+				}
+&nbsp;
+				//exit middleware with send (default)
+				return res.send(cacheResult.body);
+&nbsp;
+			}
+            
+	}
+&nbsp;
+}
+&nbsp;
+//public interface
+OutputCache.prototype.middleware = _outputCache.middleware;
+module.exports = OutputCache;</pre></td></tr>
+</table></pre>
+<div class='push'></div><!-- for sticky footer -->
+</div><!-- /wrapper -->
+<div class='footer quiet pad2 space-top1 center small'>
+  Code coverage
+  generated by <a href="http://istanbul-js.org/" target="_blank">istanbul</a> at Wed Feb 10 2016 15:44:56 GMT+0000 (GMT)
+</div>
+</div>
+<script src="../prettify.js"></script>
+<script>
+window.onload = function () {
+        if (typeof prettyPrint === 'function') {
+            prettyPrint();
+        }
+};
+</script>
+<script src="../sorter.js"></script>
+</body>
+</html>
