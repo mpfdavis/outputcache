@@ -33,7 +33,7 @@ var cache = new OutputCache({ varyByQuery: true, logger: winston, varyByCookies:
 
 - `ttl`: *(default: `600`)* the standard ttl as number in seconds for each cache item  
 - `maxItems`: *(default: `1000`)* the number of items allowed in the cache before older, unused items are pushed out
-- `useCacheHeader`: *(default: `true`)* use the max-age cache header from the original response as ttl by default. If you set this to false the option ttl or default ttl we be used and the cache-control response will not be modifed to match. This enables you to respond with a different cache control header to the actual in-memory ttl if desired
+- `useCacheHeader`: *(default: `true`)* use the max-age cache header from the original response as ttl by default. If you set this to false the option ttl or default ttl will be used and the cache-control response will not be modifed to match. This enables you to respond with a different cache control header to the actual in-memory ttl if desired
 - `varyByQuery`: *(default: `false`)* cache key will use the request path by default, setting this to true will include the querystring for more complex cache keys
 - `varyByCookies`: *(default: `[]`)* accepts an array of cookie names - the cache key will include the value of the named cookie if found in the request
 - `logger`: *(default: null)* pass in an instance of your chosen logger for logging info - expects an info property/function to be available i.e. logger.info(... 
