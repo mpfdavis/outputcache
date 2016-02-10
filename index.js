@@ -25,22 +25,18 @@ function OutputCache(options) {
     _localCache = new CacheManager({ maxSize: _options.maxItems || _defaultMaxSize, defaultTTL: _options.ttl || _localCacheTtl });
 }
 
-//common headers
-var _cacheHeader = 'X-Output-Cache';
-var _cacheHeaderMiss = 'ms';
-var _cacheHeaderHit = 'ht';
-
 //private interface
 var _outputCache = {
 
 	helpers: {
 
-		setHeadersOnCacheItem: function onSetHeaders(req, res, cacheItem) {
+		setHeadersOnCacheItem: function onSetHeaders(req, res, cacheItem, headers) {
             
-            cacheItem.headers = res._headers || {};
-
-			//ensure cache control set
-			var responseCacheHeader = cacheItem.headers['cache-control'];
+            //set passed in headers
+            cacheItem.headers = headers;
+            
+            //ensure this includes cache control
+			var responseCacheHeader = headers['cache-control'];
             
             if(!responseCacheHeader) {
                 cacheItem.headers['cache-control'] = 'max-age=' + (_options.ttl || _localCacheTtl);
@@ -49,24 +45,19 @@ var _outputCache = {
 			return cacheItem;
 
 		},
-	    getTtlFromStr: function onGetTtlFromStr(str) {
+	    getTtlFromStr: function onGetTtlFromStr(str) {      
 
-	    	//check
-	    	if(!str){return null;}
-			//first number in string
 			var regex = /\d+/;
-			//match, extract
 			var ttlFromStr = str.match(regex);
-			//parse
 			var ttlInt = _.parseInt(ttlFromStr, 10);
 
 			return ttlInt;
 
 		},
 		setLocalCache: function onSetLocalCache(cacheKey, cacheItem, ttlFromCacheHeader) {
-            
+
 			//set response to cache, optionally using cache http header for ttl
-			if (_options.useCacheHeader == false) {
+			if (_options.useCacheHeader === false) {           
 				cacheItem.ttl = _options.ttl || _localCacheTtl;
 				_localCache.set(cacheKey, cacheItem, cacheItem.ttl);
 			} else {
@@ -77,9 +68,12 @@ var _outputCache = {
 		}
 	},
 	middleware: function onOutputCache(req, res, next) {
+        
+        //headers collection
+        var resHeadersRaw = res._headers;
 
 		//support forced cache skip via querystring or cache miss headers
-		var isCacheSkip = ((req.get(_cacheHeader) && req.get(_cacheHeader) === _cacheHeaderMiss) || req.query.cache === "false");
+		var isCacheSkip = ((resHeadersRaw['x-output-cache'] && resHeadersRaw['x-output-cache'] === 'ms') || req.query.cache === "false");
 
 		if(isCacheSkip) {           
 			//set header to show this request missed output cache
@@ -114,7 +108,7 @@ var _outputCache = {
 
 			if (!cacheResult) {
 
-				/* cache for next time, override response methods */
+				/* cache for next time, override response methods */              
 				
 				res.sendOverride = res.send;
 				res.redirectOverride = res.redirect;
@@ -123,7 +117,7 @@ var _outputCache = {
 				res.send = function onOverrideSend(a, b) {
 
 				  //setup our cache object with headers
-				  var responseToCache = _outputCache.helpers.setHeadersOnCacheItem(req, res , {});
+				  var responseToCache = _outputCache.helpers.setHeadersOnCacheItem(req, res , {}, resHeadersRaw);
 
 		          //attach status and output of send to our obj
 		          responseToCache.status = !_.isUndefined(b) ? a : (_.isNumber(a) ? a : res.statusCode);
@@ -132,7 +126,7 @@ var _outputCache = {
 		          responseToCache.body = !_.isUndefined(b) ? b : (!_.isNumber(a) ? a : null);
 
 		          //get max age header
-				  var ttlFromCacheHeader = _outputCache.helpers.getTtlFromStr(responseToCache.headers['Cache-Control']);
+				  var ttlFromCacheHeader = _outputCache.helpers.getTtlFromStr(responseToCache.headers['cache-control']);
 
 		          //set response to cache, optionally using cache http header for ttl
 		          _outputCache.helpers.setLocalCache(cacheKey, responseToCache, ttlFromCacheHeader);
@@ -149,13 +143,13 @@ var _outputCache = {
 				res.redirect = function onOverrideRedirect(status, address) {
 				    
 				    //setup our cache object with headers
-					var redirectResponse = _outputCache.helpers.setHeadersOnCacheItem(req, res , {});
+					var redirectResponse = _outputCache.helpers.setHeadersOnCacheItem(req, res , {}, resHeadersRaw);
 					redirectResponse.original = req.originalUrl;
 					redirectResponse.redirect = address;
-					redirectResponse.status = status || 302;
+					redirectResponse.status = status;
 
 					//get max age header
-				    var ttlFromCacheHeader = _outputCache.helpers.getTtlFromStr(redirectResponse.headers['Cache-Control']);                  
+				    var ttlFromCacheHeader = _outputCache.helpers.getTtlFromStr(redirectResponse.headers['cache-control']);                  
                     
 		            //set response to cache, optionally using cache http header for ttl
 		            _outputCache.helpers.setLocalCache(cacheKey, redirectResponse, ttlFromCacheHeader);
@@ -178,7 +172,7 @@ var _outputCache = {
 				//set headers from cache, including ht
 				res.set(cacheResult.headers);
                 
-                res.set({'X-Output-Cache': 'ht'})
+                res.set({'X-Output-Cache': 'ht ' + cacheResult.ttl})
 
 				//set status from cache
 				res.statusCode = cacheResult.status;
@@ -186,13 +180,13 @@ var _outputCache = {
                 //set logger
                 var logger = null;
                 
-                if(_options.logger && _options.logger.info || req.app.logger && req.app.logger.info) {
-                    logger = _options.logger || req.app.logger;
+                if(_options.logger && _options.logger.info) {
+                    logger = _options.logger;
                 }
 
 				//redirects
 				if(cacheResult.redirect) {
-
+                    /* istanbul ignore else  */
 					if(logger) {
 						logger.info(JSON.stringify({metric:'hit-ratio', name: 'outputcache redirect', desc:'outputcache redirect', data: { requestPath:  cacheResult.original, redirectAddress: cacheResult.redirect, status: cacheResult.status, cacheKey: cacheKey, ttl: cacheResult.ttl}})); 
 					}
