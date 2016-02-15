@@ -91,5 +91,8 @@ A cache skip (miss) will occur for all requests when:
 - Option to skip 4xx, 3xx, 5xx
 - Option varyByUserAgent
 - Option to use any cache provider e.g. memcache
-- Log misses
+- Option to not add X-Output-Cache header to response
+- Option to log misses
 - Cache skip via cookie
+
+- Load tests
