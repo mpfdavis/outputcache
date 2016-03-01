@@ -1,24 +1,17 @@
-//cache provider
 var SLRU = require('stale-lru-cache');
-//utils
 var _ = require('lodash');
-
-//settings
 var _options;
 var _localCacheTtl = 600;
 var _defaultMaxSize = 1000;
-
-//local cache
 var _localCache;
 
 function OutputCache(options) {
 
     _options = options || {};
-    
-    //instance
+
     _localCache = new SLRU({
         maxSize: _options.maxItems || _defaultMaxSize,
-        defaultTTL: _options.ttl || _localCacheTtl
+        maxAge: _options.ttl || _localCacheTtl
     });
 
     if (!_options.varyByCookies || !_.isArray(_options.varyByCookies)) {
@@ -35,9 +28,9 @@ function OutputCache(options) {
     this.varyByQuery = _options.varyByQuery; //bool
     this.useCacheHeader = _options.useCacheHeader; //bool
     this.varyByCookies = _options.varyByCookies; //array
-    this.skip4xx = _options.skip4xx;
-    this.skip3xx = _options.skip3xx;
-    this.skip5xx = _options.skip5xx;
+    this.skip4xx = _options.skip4xx; //bool
+    this.skip3xx = _options.skip3xx; //bool
+    this.skip5xx = _options.skip5xx; //bool
     this.noHeaders = _options.noHeaders;  //bool  
      
 }
@@ -76,10 +69,10 @@ var _outputCache = {
             //set response to cache, optionally using cache http header for ttl
             if (_options.useCacheHeader === false) {
                 cacheItem.ttl = _options.ttl || _localCacheTtl;
-                _localCache.set(cacheKey, cacheItem, cacheItem.ttl);
+                _localCache.set(cacheKey, cacheItem, {maxAge: cacheItem.ttl});
             } else {
                 cacheItem.ttl = ttlFromCacheHeader || (_options.ttl || _localCacheTtl);
-                _localCache.set(cacheKey, cacheItem, cacheItem.ttl);
+                _localCache.set(cacheKey, cacheItem, {maxAge: cacheItem.ttl});
             }
 
         }
@@ -206,7 +199,7 @@ var _outputCache = {
                 res.set({ 'X-Output-Cache': 'ht ' + cacheResult.ttl });
             }
             
-            //set status from cache
+            //set status from cache - is this needed? also check e-tag etc
             res.statusCode = cacheResult.status;
 
             if (cacheResult.redirect && _options.logger && _options.logger.info) {
