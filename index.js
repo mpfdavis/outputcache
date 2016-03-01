@@ -199,7 +199,7 @@ var _outputCache = {
                 res.set({ 'X-Output-Cache': 'ht ' + cacheResult.ttl });
             }
             
-            //set status from cache - is this needed? also check e-tag etc
+            //set status from cache
             res.statusCode = cacheResult.status;
 
             if (cacheResult.redirect && _options.logger && _options.logger.info) {
