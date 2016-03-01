@@ -14,6 +14,21 @@ var _localCache;
 function OutputCache(options) {
 
     _options = options || {};
+    
+    //instance
+    _localCache = new SLRU({
+        maxSize: _options.maxItems || _defaultMaxSize,
+        defaultTTL: _options.ttl || _localCacheTtl
+    });
+
+    if (!_options.varyByCookies || !_.isArray(_options.varyByCookies)) {
+        _options.varyByCookies = [];
+    }
+
+    if (_options.noHeaders !== true) {
+        _options.noHeaders = false;
+    }
+
     this.ttl = _options.ttl; //int
     this.maxItems = _options.maxItems; //int
     this.logger = _options.logger; //logger instance
@@ -22,13 +37,9 @@ function OutputCache(options) {
     this.varyByCookies = _options.varyByCookies; //array
     this.skip4xx = _options.skip4xx;
     this.skip3xx = _options.skip3xx;
-    this.skip5xx = _options.skip5xx;   
-
-    //instance
-    _localCache = new SLRU({
-        maxSize: _options.maxItems || _defaultMaxSize,
-        defaultTTL: _options.ttl || _localCacheTtl
-    });
+    this.skip5xx = _options.skip5xx;
+    this.noHeaders = _options.noHeaders;  //bool  
+     
 }
 
 //private interface
@@ -79,13 +90,16 @@ var _outputCache = {
         var resHeadersRaw = res._headers || {};
 
         //support forced cache skip via querystring or cache miss headers
-        var isCacheSkip = ((resHeadersRaw['x-output-cache'] && resHeadersRaw['x-output-cache'] === 'ms') || req.query.cache === "false");
+        var cookies = req.cookies;
+        var isCacheSkip = ((resHeadersRaw['x-output-cache'] && resHeadersRaw['x-output-cache'] === 'ms') || req.query.cache === "false" || (cookies && cookies['x-output-cache'] === 'ms'));
 
         if (isCacheSkip) {
+          
             //set header to show this request missed output cache
-            res.set({
-                'X-Output-Cache': 'ms'
-            });
+            if (!_options.noHeaders) {
+                res.set({ 'X-Output-Cache': 'ms' });
+            }
+
             //exit early and flow to middleware
             return next();
         }
@@ -94,10 +108,9 @@ var _outputCache = {
         var cacheKey = _options.varyByQuery == false ? 'path-' + req.path : 'url-' + req.originalUrl;
 
         //extend cache key with cookie values if requested
-        var cookies = req.cookies;
         var cookieNameArray = _options.varyByCookies;
 
-        if (cookies && cookieNameArray && _.isArray(cookieNameArray) && cookieNameArray.length > 0) {
+        if (cookies && cookieNameArray.length > 0) {
 
             for (var i = 0; i < cookieNameArray.length; i++) {
                 if (cookies[cookieNameArray[i]]) {
@@ -127,7 +140,9 @@ var _outputCache = {
                 var responseToCache = _outputCache.helpers.setHeadersOnCacheItem(req, res, {}, resHeadersRaw);
                 
                 //set http header cache miss for this response
-                res.set({'X-Output-Cache': 'ms'});
+                if (!_options.noHeaders) {
+                    res.set({ 'X-Output-Cache': 'ms' });
+                }
 
                 //attach status and output of send to our obj
                 responseToCache.status = !_.isUndefined(b) ? a : (_.isNumber(a) ? a : res.statusCode);
@@ -160,7 +175,9 @@ var _outputCache = {
                 redirectResponse.status = status || 302;
                 
                 //set http header cache miss for this response
-                res.set({'X-Output-Cache': 'ms'});
+                if (!_options.noHeaders) {
+                    res.set({ 'X-Output-Cache': 'ms' });
+                }
 
                 if (status > 300 && _options.skip3xx) {
                     return res.redirectOverride(status, address);
@@ -182,65 +199,24 @@ var _outputCache = {
 
         } else {
 
-            /* serve straight from memory */
-
             //set headers from cache, including ht
             res.set(cacheResult.headers);
 
-            res.set({
-                'X-Output-Cache': 'ht ' + cacheResult.ttl
-            })
-
+            if (!_options.noHeaders) {
+                res.set({ 'X-Output-Cache': 'ht ' + cacheResult.ttl });
+            }
+            
             //set status from cache
             res.statusCode = cacheResult.status;
 
-            //set logger
-            var logger = null;
-
-            if (_options.logger && _options.logger.info) {
-                logger = _options.logger;
+            if (cacheResult.redirect && _options.logger && _options.logger.info) {
+                _options.logger.info('{"metric": "hit-ratio", "name": "outputcache", "desc": "ht redirect", "data": { "request":"' + cacheResult.original + '", "redirect": "' + cacheResult.redirect + '", "status": "' + cacheResult.status + '", "key": "' + cacheKey + '", "ttl" : "' + cacheResult.ttl + '"}}');
+            } else if (_options.logger && _options.logger.info) {
+                _options.logger.info('{"metric": "hit-ratio", "name": "outputcache", "desc": "ht render", "data": { "request":"' + req.originalUrl + '", "status": "' + cacheResult.status + '", "key": "' + cacheKey + '", "ttl": "' + cacheResult.ttl + '"}}');
             }
-
-            //redirects
-            if (cacheResult.redirect) {
-                /* istanbul ignore else  */
-                if (logger) {
-                    logger.info(JSON.stringify({
-                        metric: 'hit-ratio',
-                        name: 'outputcache',
-                        desc: 'ht redirect',
-                        data: {
-                            request: cacheResult.original,
-                            redirect: cacheResult.redirect,
-                            status: cacheResult.status,
-                            key: cacheKey,
-                            ttl: cacheResult.ttl
-                        }
-                    }));
-                }
-                
-                //exit middleware with redirect
-                return res.redirect(cacheResult.status, cacheResult.redirect);
-
-            }
-
-            //sends/renders
-            if (logger) {
-                logger.info(JSON.stringify({
-                    metric: 'hit-ratio',
-                    name: 'outputcache',
-                    desc: 'ht render',
-                    data: {
-                        request: req.originalUrl,
-                        status: cacheResult.status,
-                        key: cacheKey,
-                        ttl: cacheResult.ttl
-                    }
-                }));
-            }
-
-            //exit middleware with send (default)
-            return res.send(cacheResult.body);
+            
+            //exit and send
+            return res.end(cacheResult.body);
 
         }
 

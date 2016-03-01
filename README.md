@@ -19,8 +19,8 @@ This module will wrap any route returning json or html and seamlessly cache the 
 
 Under heavy load, Node applications can suffer poor performance even if they make use of cached data.
 
-- Fast, returns raw response and uses optimised version of LRU cache by default
-- Simple, honours original headers and requires little code changes
+- Mega fast, returns raw response and uses optimised version of LRU cache by default 
+- Simple, honours original headers, status codes and requires little code changes
 
 ## Initialize
 
@@ -37,9 +37,10 @@ var cache = new OutputCache({ varyByQuery: true, logger: winston, varyByCookies:
 - `varyByQuery`: *(default: `false`)* cache key will use the request path by default, setting this to true will include the querystring for more complex cache keys
 - `varyByCookies`: *(default: `[]`)* accepts an array of cookie names - the cache key will include the value of the named cookie if found in the request
 - `logger`: *(default: null)* pass in an instance of your chosen logger for logging info - expects an info property/function to be available i.e. logger.info(... 
-- `skip3xx` - *(default: false)* never cache 3xx responses
-- `skip4xx` - *(default: false)* never cache 4xx responses
-- `skip5xx` - *(default: false)* never cache 5xx responses
+- `skip3xx`: *(default: false)* never cache 3xx responses
+- `skip4xx`: *(default: false)* never cache 4xx responses
+- `skip5xx`: *(default: false)* never cache 5xx responses
+- `noHeaders`: *(default: false)* do not add X-Output-Cache ht/ms headers to the response - useful for security if you wish to hide server technologies
 
 **Note:** varyByCookies requires you to register a cookie parser such as the popular 'cookie-parser' module in your application before outputcache. Express no longer does this by default.
 
@@ -91,10 +92,6 @@ A cache skip (miss) will occur for all requests when:
 - useCacheHeader now defaults to true - the module will seek to use cache-control max-age for ttl unless this is set to false
 
 ## Coming Soon
-- Option varyByUserAgent
-- Option to use any cache provider e.g. memcache
-- Option to not add X-Output-Cache header to response
-- Option to log misses
-- Cache skip via cookie
+- Add support for any cache provider e.g. memcache
 
 - Load tests

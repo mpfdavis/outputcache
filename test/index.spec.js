@@ -116,7 +116,7 @@ describe('GET Redirect with status and result', function () {
             .set('Accept', 'text/html')
             .expect('Content-Type', /html/)
             .expect('X-Output-Cache', /ms/)
-            .expect(301, '<p>Moved Permanently. Redirecting to <a href="/RedirectTarget">/RedirectTarget</a></p>', done);
+            .expect(301, done);
     })
 
     it('cache responds with 301 and cache hit header', function (done) {
@@ -125,7 +125,7 @@ describe('GET Redirect with status and result', function () {
             .set('Accept', 'text/html')
             .expect('Content-Type', /html/)
             .expect('X-Output-Cache', /ht/)
-            .expect(301, '<p>Moved Permanently. Redirecting to <a href="/RedirectTarget">/RedirectTarget</a></p>', done);
+            .expect(301, done);
     })
     
 })
