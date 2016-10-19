@@ -33,7 +33,6 @@
   },
   "homepage": "",
   "dependencies": {
-    "lodash": "^4.0.1",
     "stale-lru-cache": "^5.0.1"
   },
   "devDependencies": {
