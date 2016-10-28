@@ -1,4 +1,4 @@
-# outputcache
+# Outputcache
 
 [![Version](https://img.shields.io/npm/v/outputcache.svg)](https://www.npmjs.com/package/outputcache)
 [![License](https://img.shields.io/npm/l/outputcache.svg)](https://www.npmjs.com/package/outputcache)
@@ -19,14 +19,14 @@ This module will wrap any route returning json or html and seamlessly cache the 
 
 Under heavy load, Node applications can suffer poor performance even if they make use of cached data.
 
-- Mega fast, returns raw response and uses optimised version of LRU cache by default 
-- Simple, honours original headers, status codes and requires little code changes
+- Fast - returns raw response and uses optimised version of LRU cache by default 
+- Simple - honours original headers and requires few code changes
 
 ## Initialize
 
 ```js
-var OutputCache = require('outputcache');
-var cache = new OutputCache({ varyByQuery: true, logger: winston, varyByCookies: ['geoId', 'country'] });
+const OutputCache = require('outputcache');
+const cache = new OutputCache({ varyByQuery: true, logger: winston, varyByCookies: ['geoId', 'country'] });
 ```
 
 ### Options
@@ -43,31 +43,41 @@ var cache = new OutputCache({ varyByQuery: true, logger: winston, varyByCookies:
 - `skip5xx`: *(default: false)* never cache 5xx responses
 - `noHeaders`: *(default: false)* do not add X-Output-Cache headers to the response - useful for security if you wish to hide server technologies
 
-**Note:** varyByCookies requires you to register a cookie parser such as the popular 'cookie-parser' module in your application before outputcache. Express no longer does this by default.
+**Note:** varyByCookies requires you to register a cookie parser such as the popular 'cookie-parser' module in your application before Outputcache.
 
 ## Usage
 
-- Place in route or middleware
+- Can be used as a route or global middleware. 
+- Should be placed as early as possible in the response lifecycle to maximise performance.
 
-Can be used as a route or global middleware. Outputcache should be placed as early as possible in the response lifecycle to maximise performance.
+### Methods
 
-The following example places the outputcache before "data.middleware" - this ensures all cached responses return as soon as possible and avoid any subsequent data gathering or processing.
+```js
+.middleware => //(req, res, next)
+
+```
+
+### Example
+
+The following example places Outputcache before "data.middleware" - this ensures all cached responses return as soon as possible and avoid any subsequent data gathering or processing.
 
 ```js
 
-var OutputCache = require('outputcache');
-var cache = new OutputCache({logger: winston, varyByCookies: ['country'] });
+const OutputCache = require('outputcache');
+const cache = new OutputCache({logger: winston, varyByCookies: ['country'] });
 
-app.get('/', cache.middleware, data.middleware,  function (req, res) {
+app.get('/', cache.middleware, data.middleware, (req, res) => {
   
-  var someData = res.locals.data.hello;      
+  //hit this once per ttl
+  const someData = res.locals.data.hello;      
   res.render('helloworld', someData);
   
 });
 
-app.get('/api/:channel', cache.middleware, data.middleware,  function (req, res) {
-  
-  var someData = res.locals.data.hello;      
+app.get('/api/:channel', cache.middleware, data.middleware, (req, res) => {
+
+  //hit this once per ttl    
+  const someData = res.locals.data.hello;      
   res.json(someData);
   
 });
@@ -76,8 +86,8 @@ app.get('/api/:channel', cache.middleware, data.middleware,  function (req, res)
 
 ## Headers
 
-- Will add 'X-Output-Cache' to the response headers with a ms (miss) or ht +ttl (hit) value
-- Will honour headers and status codes assigned to the original response, including for redirects
+- Will add 'X-Output-Cache' to the response headers with a ms (miss) or ht +ttl (hit) value, this can be useful for troubleshooting
+- Will honour headers assigned to the original response, including for redirects
 
 ## Cache skip
 
