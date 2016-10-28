@@ -13,13 +13,12 @@ Simple to use, load-tested, outputcache for node - supports caching the response
   npm install outputcache
 ```
 
-This module will wrap any route returning json or html and seamlessly cache the output, status and headers for future responses, preventing continous re-rendering or other expensive operations that will inhibit performance under load.
-
 ## Why?
 
-Under heavy load, Node applications can suffer poor performance even if they make use of cached data.
+Under heavy load, Node applications can suffer poor performance even if they make use of cached data. 
+Outputcache stores the final response and returns it immediately for future requests matching the original request signature.
 
-- Fast - returns raw response and uses optimised version of LRU cache by default 
+- Fast - returns raw response and uses optimised version of LRU cache by default (Maps)
 - Simple - honours original headers and requires few code changes
 
 ## Initialize
@@ -53,7 +52,7 @@ const cache = new OutputCache({ varyByQuery: true, logger: winston, varyByCookie
 ### Methods
 
 ```js
-.middleware => //(req, res, next)
+.middleware => // (req, res, next)
 
 ```
 
@@ -102,7 +101,7 @@ A cache skip (miss) will occur for all requests when:
 - No longer checks the process and will cache output for all NODE_ENV - checking process is an expensive operation so this is now avoided. If you don't want to use outputcache in dev mode, it's easy enough to manage this outside of the module
 - Now uses stale-lru-cache - this uses Maps for storage and is many, many times faster than Objects. The popular 'lru-cache' was found to leak memory and become slow under heavy load
 - useCacheHeader now defaults to true - the module will seek to use cache-control max-age for ttl unless this is set to false
-- option to not add outputcache headers for added security
+- Option to not add outputcache headers for added security
 - JSON.stringify and res.send are expensive, JSON.stringify has been removed and res.end is now used exclusively - the very fastest response (and original headers still honoured)
 
 ## Coming Soon
