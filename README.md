@@ -26,17 +26,18 @@ Under heavy load, Node applications can suffer poor performance even if they mak
 
 ```js
 var OutputCache = require('outputcache');
-var cache = new OutputCache({ varyByQuery: true, logger: winston, varyByCookies: ['country'] });
+var cache = new OutputCache({ varyByQuery: true, logger: winston, varyByCookies: ['geoId', 'country'] });
 ```
 
 ### Options
 
 - `ttl`: *(default: `600`)* the standard ttl as number in seconds for each cache item  
 - `maxItems`: *(default: `1000`)* the number of items allowed in the cache before older, unused items are pushed out
-- `useCacheHeader`: *(default: `true`)* use the max-age cache header from the original response as ttl by default. If you set this to false the option ttl or default ttl will be used and the cache-control response will not be modifed to match. This enables you to respond with a different cache control header to the actual in-memory ttl if desired
+- `useCacheHeader`: *(default: `true`)* use the max-age cache header from the original response as ttl by default. If you set this to false the options.ttl or default ttl will be used and the cache-control response will not be modifed to match. This enables you to respond with a different cache control header to the actual in-memory ttl if desired
 - `varyByQuery`: *(default: `false`)* cache key will use the request path by default, setting this to true will include the querystring for more complex cache keys
 - `varyByCookies`: *(default: `[]`)* accepts an array of cookie names - the cache key will include the value of the named cookie if found in the request
 - `logger`: *(default: null)* pass in an instance of your chosen logger for logging info - expects an info property/function to be available i.e. logger.info(... 
+- `logLevel`: *(default: debug)* the log level outputcache should log hits with if a logger is provided
 - `skip3xx`: *(default: false)* never cache 3xx responses
 - `skip4xx`: *(default: false)* never cache 4xx responses
 - `skip5xx`: *(default: false)* never cache 5xx responses
@@ -48,23 +49,23 @@ var cache = new OutputCache({ varyByQuery: true, logger: winston, varyByCookies:
 
 - Place in route or middleware
 
-Will cache response for res.send, res.render, res.json or res.redirect methods
+Can be used as a route or global middleware. Outputcache should be placed as early as possible in the response lifecycle to maximise performance.
 
-Can be used as a route or global middleware. Order of execution is important. The following example places the outputcache before 'dataMiddleware' - this ensures all cached responses return as soon as possible and avoid subsequent data gathering or processing.
+The following example places the outputcache before "data.middleware" - this ensures all cached responses return as soon as possible and avoid any subsequent data gathering or processing.
 
 ```js
 
 var OutputCache = require('outputcache');
 var cache = new OutputCache({logger: winston, varyByCookies: ['country'] });
 
-app.get('/', cache.middleware, dataMiddleware,  function (req, res) {
+app.get('/', cache.middleware, data.middleware,  function (req, res) {
   
   var someData = res.locals.data.hello;      
   res.render('helloworld', someData);
   
 });
 
-app.get('/api/:channel', cache.middleware, dataMiddleware,  function (req, res) {
+app.get('/api/:channel', cache.middleware, data.middleware,  function (req, res) {
   
   var someData = res.locals.data.hello;      
   res.json(someData);
