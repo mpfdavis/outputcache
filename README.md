@@ -25,6 +25,7 @@ Outputcache stores the final response and returns it immediately for future requ
 
 ```js
 const OutputCache = require('outputcache');
+//example
 const cache = new OutputCache({ varyByQuery: true, logger: winston, varyByCookies: ['geoId', 'country'] });
 ```
 
@@ -35,7 +36,7 @@ const cache = new OutputCache({ varyByQuery: true, logger: winston, varyByCookie
 - `useCacheHeader`: *(default: `true`)* use the max-age cache header from the original response as ttl by default. If you set this to false the options.ttl or default ttl will be used and the cache-control response will not be modifed to match. This enables you to respond with a different cache control header to the actual in-memory ttl if desired
 - `varyByQuery`: *(default: `false`)* cache key will use the request path by default, setting this to true will include the querystring for more complex cache keys
 - `varyByCookies`: *(default: `[]`)* accepts an array of cookie names - the cache key will include the value of the named cookie if found in the request
-- `logger`: *(default: null)* pass in an instance of your chosen logger for logging info - expects an info property/function to be available i.e. logger.info(... 
+- `logger`: *(default: null)* pass in an instance of your chosen logger for logging info - expects a debug method to be available unless a specific logLevel is supplied
 - `logLevel`: *(default: debug)* the log level outputcache should log hits with if a logger is provided
 - `skip3xx`: *(default: false)* never cache 3xx responses
 - `skip4xx`: *(default: false)* never cache 4xx responses
@@ -63,7 +64,7 @@ The following example places Outputcache before "data.middleware" - this ensures
 ```js
 
 const OutputCache = require('outputcache');
-const cache = new OutputCache({logger: winston, varyByCookies: ['country'] });
+const cache = new OutputCache({logger: winston});
 
 app.get('/', cache.middleware, data.middleware, (req, res) => {
   
