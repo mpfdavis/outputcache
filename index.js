@@ -89,20 +89,18 @@ var _outputCache = {
         }
 
         var cacheKey = _options.varyByQuery === false ? 'p-' + req.path : 'u-' + req.originalUrl;
-
         var cookieNameArray = _options.varyByCookies;
+        var cookieNameArrayLength = cookieNameArray.length;
 
-        if (cookies && cookieNameArray.length > 0) {
+        if (cookies && cookieNameArrayLength > 0) {
 
-            for (var i = 0; i < cookieNameArray.length; i++) {
+            for (var i = 0; i < cookieNameArrayLength; i++) {
                 if (cookies[cookieNameArray[i]]) {
                     cacheKey += ('-c-' + cookies[cookieNameArray[i]]);
                 }
             }
 
         }
-
-        cacheKey = cacheKey.toLowerCase();
 
         var cacheResult = _localCache.get(cacheKey);
 
