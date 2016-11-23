@@ -21,7 +21,7 @@ function OutputCache(options) {
         _options.noHeaders = false;
     }
 
-    if(!_options.logLevel) {
+    if (!_options.logLevel) {
         _options.logLevel = 'debug';
     }
 
@@ -36,7 +36,7 @@ function OutputCache(options) {
     this.skip3xx = _options.skip3xx;
     this.skip5xx = _options.skip5xx;
     this.noHeaders = _options.noHeaders;
-     
+
 }
 
 var _outputCache = {
@@ -66,10 +66,10 @@ var _outputCache = {
 
             if (_options.useCacheHeader === false) {
                 cacheItem.ttl = _options.ttl || _localCacheTtl;
-                _localCache.set(cacheKey, cacheItem, {maxAge: cacheItem.ttl});
+                _localCache.set(cacheKey, cacheItem, { maxAge: cacheItem.ttl });
             } else {
                 cacheItem.ttl = ttlFromCacheHeader || (_options.ttl || _localCacheTtl);
-                _localCache.set(cacheKey, cacheItem, {maxAge: cacheItem.ttl});
+                _localCache.set(cacheKey, cacheItem, { maxAge: cacheItem.ttl });
             }
 
         }
@@ -81,7 +81,7 @@ var _outputCache = {
         var isCacheSkip = ((resHeadersRaw['x-output-cache'] && resHeadersRaw['x-output-cache'] === 'ms') || req.query.cache === "false" || (cookies && cookies['x-output-cache'] === 'ms'));
 
         if (isCacheSkip) {
-          
+
             if (!_options.noHeaders) {
                 res.set({ 'X-Output-Cache': 'ms' });
             }
@@ -112,7 +112,7 @@ var _outputCache = {
             res.send = function onOverrideSend(a, b) {
 
                 var responseToCache = _outputCache.helpers.setHeadersOnCacheItem(req, res, {}, resHeadersRaw);
-                
+
                 if (!_options.noHeaders) {
                     res.set({ 'X-Output-Cache': 'ms' });
                 }
@@ -139,7 +139,7 @@ var _outputCache = {
                 redirectResponse.original = req.originalUrl;
                 redirectResponse.redirect = address;
                 redirectResponse.status = status || 302;
-                
+
                 if (!_options.noHeaders) {
                     res.set({ 'X-Output-Cache': 'ms' });
                 }
@@ -176,8 +176,13 @@ var _outputCache = {
             } else if (logger && logger[logLevel]) {
                 logger[logLevel]('{"metric": "hit-ratio", "name": "outputcache", "desc": "ht render", "data": { "request":"' + req.originalUrl + '", "status": "' + cacheResult.status + '", "key": "' + cacheKey + '", "ttl": "' + cacheResult.ttl + '"}}');
             }
-            
-            return res.end(cacheResult.body);
+
+
+            if (cacheResult.redirect) {
+                return res.redirect(cacheResult.status, cacheResult.redirect);
+            }
+
+            return res.send(cacheResult.body);
 
         }
 
