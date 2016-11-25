@@ -8,10 +8,14 @@ function OutputCache(options) {
 
     _options = options || {};
 
-    _localCache = new SLRU({
+    var SLRUOptions = {
         maxSize: _options.maxItems || _defaultMaxSize,
         maxAge: _options.ttl || _localCacheTtl
-    });
+    };
+
+    if(_options.staleWhileRevalidate) {
+        SLRUOptions.staleWhileRevalidate = _options.staleWhileRevalidate;
+    }
 
     if (!_options.varyByCookies || !Array.isArray(_options.varyByCookies)) {
         _options.varyByCookies = [];
@@ -24,6 +28,8 @@ function OutputCache(options) {
     if (!_options.logLevel) {
         _options.logLevel = 'debug';
     }
+
+    _localCache = new SLRU(SLRUOptions);
 
     this.ttl = _options.ttl;
     this.maxItems = _options.maxItems;
@@ -49,7 +55,8 @@ var _outputCache = {
             var responseCacheHeader = headers['cache-control'];
 
             if (!responseCacheHeader) {
-                cacheItem.headers['cache-control'] = 'max-age=' + (_options.ttl || _localCacheTtl);
+                var staleWhileRevalidateInfo = _options.staleWhileRevalidate ? ', stale-while-revalidate=' + _options.staleWhileRevalidate : '';
+                cacheItem.headers['cache-control'] = 'max-age=' + (_options.ttl || _localCacheTtl) + staleWhileRevalidateInfo;
             }
             return cacheItem;
 
@@ -64,12 +71,18 @@ var _outputCache = {
         },
         setLocalCache: function onSetLocalCache(cacheKey, cacheItem, ttlFromCacheHeader) {
 
+            var setCacheOptions = { maxAge: cacheItem.ttl };
+
+            if(_options.staleWhileRevalidate) {
+                setCacheOptions.staleWhileRevalidate = _options.staleWhileRevalidate;
+            }
+
             if (_options.useCacheHeader === false) {
                 cacheItem.ttl = _options.ttl || _localCacheTtl;
-                _localCache.set(cacheKey, cacheItem, { maxAge: cacheItem.ttl });
+                _localCache.set(cacheKey, cacheItem, setCacheOptions);
             } else {
                 cacheItem.ttl = ttlFromCacheHeader || (_options.ttl || _localCacheTtl);
-                _localCache.set(cacheKey, cacheItem, { maxAge: cacheItem.ttl });
+                _localCache.set(cacheKey, cacheItem, setCacheOptions);
             }
 
         }
@@ -163,7 +176,8 @@ var _outputCache = {
             res.set(cacheResult.headers);
 
             if (!_options.noHeaders) {
-                res.set({ 'X-Output-Cache': 'ht ' + cacheResult.ttl });
+                var staleWhileRevalidateInfo = _options.staleWhileRevalidate ? ', stale-while-revalidate ' + _options.staleWhileRevalidate : '';
+                res.set({ 'X-Output-Cache': 'ht ' + cacheResult.ttl + staleWhileRevalidateInfo });
             }
 
             res.statusCode = cacheResult.status;
@@ -172,9 +186,9 @@ var _outputCache = {
             var logLevel = _options.logLevel;
 
             if (cacheResult.redirect && logger && logger[logLevel]) {
-                logger[logLevel]('{"metric": "hit-ratio", "name": "outputcache", "desc": "ht redirect", "data": { "request":"' + cacheResult.original + '", "redirect": "' + cacheResult.redirect + '", "status": "' + cacheResult.status + '", "key": "' + cacheKey + '", "ttl" : "' + cacheResult.ttl + '"}}');
+                logger[logLevel]('{"metric": "hit-ratio", "name": "outputcache", "desc": "ht redirect", "data": { "request":"' + cacheResult.original + '", "redirect": "' + cacheResult.redirect + '", "status": "' + cacheResult.status + '" ,"key": "' + cacheKey + '", "ttl" : "' + cacheResult.ttl +  (_options.staleWhileRevalidate ? ', "staleWhileRevalidate": "' + (_options.staleWhileRevalidate) + '"}}' : '"}}'));
             } else if (logger && logger[logLevel]) {
-                logger[logLevel]('{"metric": "hit-ratio", "name": "outputcache", "desc": "ht render", "data": { "request":"' + req.originalUrl + '", "status": "' + cacheResult.status + '", "key": "' + cacheKey + '", "ttl": "' + cacheResult.ttl + '"}}');
+                logger[logLevel]('{"metric": "hit-ratio", "name": "outputcache", "desc": "ht render", "data": { "request":"' + req.originalUrl + '", "status": "' + cacheResult.status + '", "key": "' + cacheKey + '", "ttl": "' + cacheResult.ttl  + (_options.staleWhileRevalidate ? ', "staleWhileRevalidate": "' + (_options.staleWhileRevalidate) + '"}}' : '"}}'));
             }
 
 
