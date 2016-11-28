@@ -42,6 +42,7 @@ const cache = new OutputCache({ varyByQuery: true, logger: winston, varyByCookie
 - `skip4xx`: *(default: false)* never cache 4xx responses
 - `skip5xx`: *(default: false)* never cache 5xx responses
 - `noHeaders`: *(default: false)* do not add X-Output-Cache headers to the response - useful for security if you wish to hide server technologies
+- `staleWhileRevalidate`: set staleWhileRevalidate header for client as ttl in seconds
 
 **Note:** varyByCookies requires you to register a cookie parser such as the popular 'cookie-parser' module in your application before Outputcache.
 

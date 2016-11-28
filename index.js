@@ -42,6 +42,7 @@ function OutputCache(options) {
     this.skip3xx = _options.skip3xx;
     this.skip5xx = _options.skip5xx;
     this.noHeaders = _options.noHeaders;
+    this.staleWhileRevalidate = _options.staleWhileRevalidate;
 
 }
 
