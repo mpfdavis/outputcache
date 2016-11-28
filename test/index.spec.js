@@ -9,7 +9,7 @@ app.use(cookieParser());
 var OutputCache = requireNew('../index');
 
 //cache instances
-var cache = new OutputCache({ varyByQuery: true, logger:console, varyByCookies: ['hello'] })
+var cache = new OutputCache({ varyByQuery: true, staleWhileRevalidate: 700, logger:console, varyByCookies: ['hello'] })
 
 //mock application routes
 app.get('/GetJSON', cache.middleware, function (req, res) {
@@ -83,6 +83,7 @@ describe('GET JSON with headers and status', function () {
             .set('Accept', 'application/json')
             .expect('Content-Type', /json/)
             .expect('X-Output-Cache', /ht/)
+            .expect('X-Output-Cache', /stale-while-revalidate/)                                   
             .expect(200, { hello: 'world' }, done);
     })
 })
@@ -104,6 +105,7 @@ describe('GET HTML with headers and status', function () {
             .set('Accept', 'text/html')
             .expect('Content-Type', /html/)
             .expect('X-Output-Cache', /ht/)
+            .expect('X-Output-Cache', /stale-while-revalidate/)                                   
             .expect(200, '<html></html>', done);
     })
 })
@@ -125,6 +127,7 @@ describe('GET Redirect with status and result', function () {
             .set('Accept', 'text/html')
             .expect('Content-Type', /html/)
             .expect('X-Output-Cache', /ht/)
+            .expect('X-Output-Cache', /stale-while-revalidate/)                                   
             .expect(301, done);
     })
     
@@ -147,6 +150,7 @@ describe('Honours custom headers', function () {
             .set('Accept', 'text/html')
             .expect('Content-Type', /html/)
             .expect('X-Output-Cache', /ht/)
+            .expect('X-Output-Cache', /stale-while-revalidate/)                                   
             .expect('X-Custom', /custom-header/)
             .expect(200, '<html></html>', done);
     })
@@ -170,6 +174,7 @@ describe('Honours cache control', function () {
             .set('Accept', 'text/html')
             .expect('Content-Type', /html/)
             .expect('X-Output-Cache', /ht/)
+            .expect('X-Output-Cache', /stale-while-revalidate/)
             .expect('Cache-Control', /max-age=722/)
             .expect(200, '<html></html>', done);
     })
@@ -180,7 +185,9 @@ describe('Honours cache control', function () {
             .set('Accept', 'text/html')
             .expect('Content-Type', /html/)
             .expect('X-Output-Cache', /ht/)
+            .expect('X-Output-Cache', /stale-while-revalidate/)            
             .expect('Cache-Control', /max-age=600/)
+            .expect('Cache-Control', /stale-while-revalidate=700/)
             .expect(200, '<html></html>', done);
     })
     
@@ -200,6 +207,7 @@ describe('Honours cache control', function () {
             .set('Accept', 'text/html')
             .expect('Content-Type', /html/)
             .expect('X-Output-Cache', /ht 600/)
+            .expect('X-Output-Cache', /stale-while-revalidate/)            
             .expect('Cache-Control', /max-age=wrong/)
             .expect(200, '<html></html>', done);          
     })
@@ -220,6 +228,7 @@ describe('Honours cache control', function () {
             .set('Accept', 'text/html')
             .expect('Content-Type', /html/)
             .expect('X-Output-Cache', /ht 676/)
+            .expect('X-Output-Cache', /stale-while-revalidate 700/)            
             .expect('Cache-Control', /676/)
             .expect(200, '<html></html>', done);          
     })
@@ -244,6 +253,7 @@ describe('Honours querystring', function () {
             .set('Accept', 'text/html')
             .expect('Content-Type', /html/)
             .expect('X-Output-Cache', /ht/)
+            .expect('X-Output-Cache', /stale-while-revalidate/)                        
             .expect(200, 'querystring says hello world', done);
             
     })
@@ -280,6 +290,7 @@ describe('Honours cookies', function () {
             .set('Cookie', ['hello=world'])
             .expect('Content-Type', /html/)
             .expect('X-Output-Cache', /ht/)
+            .expect('X-Output-Cache', /stale-while-revalidate/)                       
             .expect(200, 'cookie says hello world', done);            
     })
     
@@ -311,6 +322,7 @@ describe('Cache skip', function () {
             .set('Accept', 'text/html')
             .expect('Content-Type', /html/)
             .expect('X-Output-Cache', /ht/)
+            .expect('X-Output-Cache', /stale-while-revalidate 700/)                       
             .expect(200, 'querystring says hello dave');
         //force skip
         request(app)
