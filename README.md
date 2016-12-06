@@ -55,7 +55,9 @@ const cache = new OutputCache({ varyByQuery: true, logger: winston, varyByCookie
 
 ```js
 .middleware => // (req, res, next)
-
+```
+```js
+.getSize => // (Number) items in cache
 ```
 
 ### Example
