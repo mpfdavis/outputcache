@@ -53,10 +53,10 @@ var _outputCache = {
 
     helpers: {
 
-        setHeadersOnCacheItem: function onSetHeaders(req, res, cacheItem, headers) {
+        setHeadersOnCacheItem: function onSetHeaders(req, res, cacheItem) {
 
-            cacheItem.headers = headers;
-            var responseCacheHeader = headers['cache-control'];
+            cacheItem.headers = JSON.parse(JSON.stringify(res._headers));
+            var responseCacheHeader = res._headers['cache-control'];
 
             if (!responseCacheHeader) {
                 var staleWhileRevalidateInfo = _options.staleWhileRevalidate ? ', stale-while-revalidate=' + _options.staleWhileRevalidate : '';
@@ -128,7 +128,7 @@ var _outputCache = {
 
             res.send = function onOverrideSend(a, b) {
 
-                var responseToCache = _outputCache.helpers.setHeadersOnCacheItem(req, res, {}, resHeadersRaw);
+                var responseToCache = _outputCache.helpers.setHeadersOnCacheItem(req, res, {});
 
                 if (!_options.noHeaders) {
                     res.set({ 'X-Output-Cache': 'ms' });
