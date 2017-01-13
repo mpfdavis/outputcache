@@ -1,17 +1,23 @@
 {
   "name": "outputcache",
-  "version": "3.9.3",
-  "description": "Fast outputcache for node to cache html, json or redirect responses",
-  "main": "index.js",
+  "version": "4.0.0",
+  "description": "Seamlessly cache html, json or redirect responses using redis, memcached or any other cache provider.",
+  "main": "bin/outputcache.js",
   "scripts": {
     "test": "./node_modules/istanbul/lib/cli.js cover ./node_modules/.bin/_mocha",
-    "coveralls": "cat ./coverage/lcov.info | ./node_modules/.bin/coveralls"
+    "coveralls": "cat ./coverage/lcov.info | ./node_modules/.bin/coveralls",
+    "compile": "babel src --out-dir bin --presets es2015",
+    "prepublish": "npm run compile"
   },
   "repository": {
     "type": "git",
     "url": "https://github.com/mpfdavis/outputcache"
   },
   "keywords": [
+    "redis",
+    "memcached",
+    "response",
+    "http",
     "outputcache",
     "output",
     "output cache",
@@ -36,16 +42,18 @@
     "stale-lru-cache": "^5.0.1"
   },
   "devDependencies": {
-    "chai": "^3.5.0",
+    "babel-cli": "^6.18.0",
+    "babel-preset-es2015": "^6.18.0",
     "cookie-parser": "^1.4.1",
     "coveralls": "^2.11.6",
     "express": "^4.13.4",
     "istanbul": "^0.4.2",
-    "mocha": "^2.4.5",
+    "memcached-mock": "^0.1.0",
+    "mock-redis-client": "^0.91.13",
     "require-new": "^1.1.0",
     "supertest": "^1.1.0"
   },
   "engines": {
-    "node": ">=0.12.6"
+    "node": ">=4.4.6"
   }
 }

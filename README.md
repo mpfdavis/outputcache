@@ -2,100 +2,165 @@
 
 [![Version](https://img.shields.io/npm/v/outputcache.svg)](https://www.npmjs.com/package/outputcache)
 [![License](https://img.shields.io/npm/l/outputcache.svg)](https://www.npmjs.com/package/outputcache)
+[![Downloads](https://img.shields.io/npm/dt/outputcache.svg)](https://www.npmjs.com/package/outputcache)
 [![Build Status](https://travis-ci.org/mpfdavis/outputcache.svg?branch=master)](https://travis-ci.org/mpfdavis/outputcache)
 [![Test Coverage](https://coveralls.io/repos/mpfdavis/outputcache/badge.svg?branch=master&service=github)](https://coveralls.io/github/mpfdavis/outputcache?branch=master)
 
-Simple to use, load-tested, outputcache for node - supports caching the response of **res.send, res.render, res.json**, **res.redirect** and all headers
-
-## Install
-
-```bash
-  npm install outputcache
-```
+Seamlessly cache html, json or redirect responses using redis, memcached or any other cache provider for node.
 
 ## Why?
 
-Under heavy load, Node applications can suffer poor performance even if they make use of cached data. 
-Outputcache stores the final response and returns it immediately for future requests matching the original request signature.
+Caching data still exposes your application to processing overhead. Under heavy load, this can often severely impact throughput. 
+You can significantly increase the performance and scalability of your applications by returning subsequent responses directly from cache.
 
-- Fast - returns raw response and uses optimised version of LRU cache by default (Maps)
-- Simple - honours original headers and requires few code changes
+## Installation
+
+```bash
+  npm install outputcache --save
+```
+
+- Fast - returns original response directly from cache and uses optimised version of LRU cache by default (Maps)
+- Simple - honours all original headers, status codes and requires few code changes
+- Flexible - use any cache provider under the hood - in-process or remote such as redis cache
+- Well tested - many unit tests and used in production by major e-commerce business
 
 ## Initialize
 
 ```js
 const OutputCache = require('outputcache');
-//example
-const cache = new OutputCache({ varyByQuery: true, logger: winston, varyByCookies: ['geoId', 'country'] });
+const xoc = new OutputCache({ varyByQuery: ['page', 'sort'] });
 ```
 
 ### Options
 
 - `ttl`: *(default: `600`)* the standard ttl as number in seconds for each cache item  
-- `maxItems`: *(default: `1000`)* the number of items allowed in the cache before older, unused items are pushed out
-- `useCacheHeader`: *(default: `true`)* use the max-age cache header from the original response as ttl by default. If you set this to false the options.ttl or default ttl will be used and the cache-control response will not be modifed to match. This enables you to respond with a different cache control header to the actual in-memory ttl if desired
-- `varyByQuery`: *(default: `false`)* cache key will use the request path by default, setting this to true will include the querystring for more complex cache keys
+- `maxItems`: *(default: `1000`)* the number of items allowed in the cache before older, unused items are pushed out - this can be set much higher for 'out of process' caches such as redis
+- `useCacheHeader`: *(default: `true`)* use the max-age cache header from the original response as ttl by default. If you set this to false the options.ttl or default is used instead
+- `varyByQuery`: *(default: `[]`)* accepts a boolean or array - true/false to use all/ignore all or array to use only specific querystring arguments in the cache key
 - `varyByCookies`: *(default: `[]`)* accepts an array of cookie names - the cache key will include the value of the named cookie if found in the request
-- `logger`: *(default: null)* pass in an instance of your chosen logger for logging info - expects a debug method to be available unless a specific logLevel is supplied
-- `logLevel`: *(default: debug)* the log level outputcache should log hits with if a logger is provided
+- `allowSkip` *(default: true)* 
 - `skip3xx`: *(default: false)* never cache 3xx responses
 - `skip4xx`: *(default: false)* never cache 4xx responses
 - `skip5xx`: *(default: false)* never cache 5xx responses
 - `noHeaders`: *(default: false)* do not add X-Output-Cache headers to the response - useful for security if you wish to hide server technologies
-- `staleWhileRevalidate`: set staleWhileRevalidate header for client as ttl in seconds
+- `staleWhileRevalidate`: *(default: 0)* the default cache provider supports the stale-while-revalidate ttl from the header or will use this setting if useCacheHeader is false
+- `cacheProvider`: *(default: object)* object exposing the default cache and its interface - see below for override settings
 
-**Note:** varyByCookies requires you to register a cookie parser such as the popular 'cookie-parser' module in your application before Outputcache.
+**Note:** varyByCookies requires you to register a cookie parser such as the 'cookie-parser' module in your application before Outputcache.
 
 ## Usage
 
-- Can be used as a route or global middleware. 
+- Can be used as a route or global middleware - see examples below. 
 - Should be placed as early as possible in the response lifecycle to maximise performance.
 
-### Methods
+## Example
 
-```js
-.middleware => // (req, res, next)
-```
-```js
-.getSize => // (Number) items in cache
-```
-
-### Example
-
-The following example places Outputcache before "data.middleware" - this ensures all cached responses return as soon as possible and avoid any subsequent data gathering or processing.
+The following example places Outputcache before "api.middleware" - this ensures all cached responses return as soon as possible and avoid any subsequent data gathering or processing.
 
 ```js
 
 const OutputCache = require('outputcache');
-const cache = new OutputCache({logger: winston});
+const xoc = new OutputCache();
 
-app.get('/', cache.middleware, data.middleware, (req, res) => {
+app.get('/', xoc.middleware, api.middleware, (req, res) => {
   
-  //hit this once per ttl
-  const someData = res.locals.data.hello;      
-  res.render('helloworld', someData);
+  const data = {hello:'world'};      
+  res.render('hello', data);
   
 });
 
-app.get('/api/:channel', cache.middleware, data.middleware, (req, res) => {
-
-  //hit this once per ttl    
-  const someData = res.locals.data.hello;      
-  res.json(someData);
+app.get('/api/:channel', xoc.middleware, api.middleware, (req, res) => {
+ 
+  const data = {hello:'world'};     
+  res.json(data);
   
 });
 
 ```
 
+## Using an alternative cache provider
+
+Outputcache supports any cache provider by exposing the cache and get/set methods on its own 'cacheProvider' property. The examples below show how redis can be used. 
+The only requirement is that your cache returns a promise - if it doesn't, one way to handle this is overriding the get method to wrap the callback in a promise.
+
+```js
+const xoc = require('outputcache');
+const redis = require('redis');
+const client = redis.createClient();
+
+const xoc = new OutputCache({
+    cacheProvider: {
+        cache: client,
+        get: key => {
+            return new Promise(resolve => {
+                xoc.cacheProvider.cache.get(key, function (err, result) {
+                    if(err || !result) {
+                        return resolve(null);
+                    }
+                    return resolve(result);
+                });
+            });
+        },
+        set: (key, item, ttl) => {
+            xoc.cacheProvider.cache.set(key, JSON.stringify(item));
+            xoc.cacheProvider.cache.expire(key, ttl);
+        }
+    }
+});
+
+```
+
+## Logging
+
+Passing an instance of a logger to outputcache is no longer supported - hits, misses or cache errors can be logged by listening for events (see below) on the outputcache instance. This gives the developer greater control over the logging format etc.
+
 ## Headers
 
-- Will add 'X-Output-Cache' to the response headers with a ms (miss) or ht +ttl (hit) value, this can be useful for troubleshooting
-- Will honour headers assigned to the original response, including for redirects
+- Will add 'x-output-cache ms/ht ttl swr' to the response headers to indicate a miss/hit the ttl of the response in cache and the value of the staleWhileRevalidate in cache if in use
+- Will honour all headers assigned to the original response, including for redirects
+- The x-output-cache header can be disabled by setting noHeaders to true
 
-## Cache skip
+## Force cache skip
 
-A cache skip (miss) will occur for all requests when:
+It may be useful to skip outputcache completely for specific requests, you can force a cache skip (miss) when the allowSkip option is true (default) and:
 
 - The querystring collection contains 'cache=false' value pair.
-- The request has an 'X-Output-Cache' header set with the value 'ms'
-- A cookie X-Output-Cache with value 'ms' was set on the original response
+- The request has an 'x-output-cache' header set with the value 'ms'
+- The request has an x-output-cache cookie with value 'ms'
+
+This behaviour can be disabled by setting allowSkip to false
+
+## Methods
+
+```js
+const xoc = new OutputCache();
+
+xoc.middleware => // (req, res, next)
+```
+
+## Events
+
+```js
+const xoc = new OutputCache();
+
+xoc.on('hit', cacheItem => {
+
+});
+
+xoc.on('miss', info => {
+
+});
+
+xoc.on('cacheProviderError', err => {
+
+});
+```
+
+## Performance
+
+Outputcache has more impact on your application performance the more it gets hit - you can help to ensure more cache hits by making cache keys as simple as possible e.g. disable querystring or cookie based caching or only allow specific querystring args to be used as keys
+
+The follow snapshots show the inverse relationship between response latency and requests when using outputcache and achieving a high volume of hits
+
+![Requests](https://www.dropbox.com/s/of1d38r9l3yx4km/Screen%20Shot%202017-01-13%20at%2015.26.30.png?dl=0)
+![Latency](https://www.dropbox.com/s/prxts69zp1obcel/Screen%20Shot%202017-01-13%20at%2015.26.55.png?dl=0)
