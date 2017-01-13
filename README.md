@@ -9,20 +9,18 @@
 Seamlessly cache html, json or redirect responses using redis, memcached or any other cache provider for node.
 
 ## Why?
-
-Caching data still exposes your application to processing overhead. Under heavy load, this can often severely impact throughput. 
-You can significantly increase the performance and scalability of your applications by returning subsequent responses directly from cache.
-
-## Installation
-
-```bash
-  npm install outputcache --save
-```
+ 
+You can significantly increase the performance and scalability of your applications by returning subsequent responses directly from cache, freeing the node event loop to process cold requests.
 
 - Fast - returns original response directly from cache and uses optimised version of LRU cache by default (Maps)
 - Simple - honours all original headers, status codes and requires few code changes
 - Flexible - use any cache provider under the hood - in-process or remote such as redis cache
-- Well tested - many unit tests and used in production by major e-commerce business
+- Well tested - many unit tests, load tested and used in production
+
+## Installation
+
+  *npm install outputcache --save*
+
 
 ## Initialize
 
@@ -62,26 +60,20 @@ The following example places Outputcache before "api.middleware" - this ensures 
 const OutputCache = require('outputcache');
 const xoc = new OutputCache();
 
-app.get('/', xoc.middleware, api.middleware, (req, res) => {
-  
-  const data = {hello:'world'};      
-  res.render('hello', data);
-  
+app.get('/', xoc.middleware, api.middleware, (req, res) => {  
+  res.render('hello', {hello:'world'});
 });
 
-app.get('/api/:channel', xoc.middleware, api.middleware, (req, res) => {
- 
-  const data = {hello:'world'};     
-  res.json(data);
-  
+app.get('/api/:channel', xoc.middleware, api.middleware, (req, res) => {    
+  res.json({hello:'world'});
 });
 
 ```
 
 ## Using an alternative cache provider
 
-Outputcache supports any cache provider by exposing the cache and get/set methods on its own 'cacheProvider' property. The examples below show how redis can be used. 
-The only requirement is that your cache returns a promise - if it doesn't, one way to handle this is overriding the get method to wrap the callback in a promise.
+Outputcache supports any cache provider by exposing the cache and get/set methods on its own 'cacheProvider' property. The example below show how redis can be used. 
+The only requirement is that your cache returns a promise - if it doesn't, you can handle this by overriding the get method to wrap the callback in a promise.
 
 ```js
 const xoc = require('outputcache');
@@ -116,7 +108,7 @@ Passing an instance of a logger to outputcache is no longer supported - hits, mi
 
 ## Headers
 
-- Will add 'x-output-cache ms/ht ttl swr' to the response headers to indicate a miss/hit the ttl of the response in cache and the value of the staleWhileRevalidate in cache if in use
+- Will add 'x-output-cache ms/ht {ttl} {swr}' to the response headers to indicate a miss/hit the ttl of the response in cache and the value of the staleWhileRevalidate in cache if in use
 - Will honour all headers assigned to the original response, including for redirects
 - The x-output-cache header can be disabled by setting noHeaders to true
 
@@ -133,27 +125,17 @@ This behaviour can be disabled by setting allowSkip to false
 ## Methods
 
 ```js
-const xoc = new OutputCache();
-
 xoc.middleware => // (req, res, next)
 ```
 
 ## Events
 
 ```js
-const xoc = new OutputCache();
+xoc.on('hit', cacheItem => 
 
-xoc.on('hit', cacheItem => {
+xoc.on('miss', info => 
 
-});
-
-xoc.on('miss', info => {
-
-});
-
-xoc.on('cacheProviderError', err => {
-
-});
+xoc.on('cacheProviderError', err => 
 ```
 
 ## Performance
