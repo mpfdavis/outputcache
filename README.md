@@ -158,9 +158,4 @@ xoc.on('cacheProviderError', err => {
 
 ## Performance
 
-Outputcache has more impact on your application performance the more it gets hit - you can help to ensure more cache hits by making cache keys as simple as possible e.g. disable querystring or cookie based caching or only allow specific querystring args to be used as keys
-
-The follow snapshots show the inverse relationship between response latency and requests when using outputcache and achieving a high volume of hits
-
-![Requests](https://www.dropbox.com/s/of1d38r9l3yx4km/Screen%20Shot%202017-01-13%20at%2015.26.30.png?dl=0)
-![Latency](https://www.dropbox.com/s/prxts69zp1obcel/Screen%20Shot%202017-01-13%20at%2015.26.55.png?dl=0)
+Outputcache has more impact on your application performance the more it gets hit - you can help to ensure more cache hits by making cache keys as simple as possible e.g. disable querystring or cookie based caching or only allow specific querystring args to be used as keys.
