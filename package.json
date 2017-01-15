@@ -1,6 +1,6 @@
 {
   "name": "outputcache",
-  "version": "4.0.1",
+  "version": "4.0.2",
   "description": "Seamlessly cache html, json or redirect responses using redis, memcached or any other cache provider.",
   "main": "bin/outputcache.js",
   "scripts": {

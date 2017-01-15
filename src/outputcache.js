@@ -47,6 +47,7 @@ module.exports = class OutputCache extends EventEmitter {
             if (!this.noHeaders) {
                 res.setHeader(this.header, 'ms');
             }
+            this.emit('miss', { url: urlParsed.path });                      
             return next();
         }
 
@@ -81,6 +82,7 @@ module.exports = class OutputCache extends EventEmitter {
                 this.emit('hit', cacheResult);
 
                 res.writeHead(cacheResult.status, cacheResult.headers);
+                
                 return res.end(cacheResult.body);
 
             } else {
@@ -128,6 +130,7 @@ module.exports = class OutputCache extends EventEmitter {
             if (!this.noHeaders) {
                 res.setHeader(this.header, 'ms');
             }
+            this.emit('miss', { url: urlParsed.path });                                  
             this.emit('cacheProviderError', err);
             return next();
         });

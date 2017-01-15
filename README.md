@@ -6,7 +6,7 @@
 [![Build Status](https://travis-ci.org/mpfdavis/outputcache.svg?branch=master)](https://travis-ci.org/mpfdavis/outputcache)
 [![Test Coverage](https://coveralls.io/repos/mpfdavis/outputcache/badge.svg?branch=master&service=github)](https://coveralls.io/github/mpfdavis/outputcache?branch=master)
 
-Seamlessly cache html, json or redirect responses using redis, memcached or any other cache provider for node.
+Seamlessly cache html, json or redirect responses using Redis, Memcached or any other cache provider for node.
 
 ## Why?
  
@@ -15,16 +15,16 @@ You can significantly increase the performance and scalability of your applicati
 - Fast - returns original response directly from cache and uses optimised version of LRU cache by default (Maps)
 - Simple - honours all original headers, status codes and requires few code changes
 - Flexible - use any cache provider under the hood - in-process or remote such as redis cache
-- Well tested - many unit tests, load tested and used in production
+- Well tested - many unit tests, well load tested and used in production
 
 ## Installation
-
+```
   *npm install outputcache --save*
-
+```
 
 ## Initialize
 
-```js
+```javascript
 const OutputCache = require('outputcache');
 const xoc = new OutputCache({ varyByQuery: ['page', 'sort'] });
 ```
@@ -34,13 +34,13 @@ const xoc = new OutputCache({ varyByQuery: ['page', 'sort'] });
 - `ttl`: *(default: `600`)* the standard ttl as number in seconds for each cache item  
 - `maxItems`: *(default: `1000`)* the number of items allowed in the cache before older, unused items are pushed out - this can be set much higher for 'out of process' caches such as redis
 - `useCacheHeader`: *(default: `true`)* use the max-age cache header from the original response as ttl by default. If you set this to false the options.ttl or default is used instead
-- `varyByQuery`: *(default: `[]`)* accepts a boolean or array - true/false to use all/ignore all or array to use only specific querystring arguments in the cache key
+- `varyByQuery`: *(default: `true`)* accepts a boolean or array - true/false to use all/ignore all or array to use only specific querystring arguments in the cache key
 - `varyByCookies`: *(default: `[]`)* accepts an array of cookie names - the cache key will include the value of the named cookie if found in the request
-- `allowSkip` *(default: true)* 
+- `allowSkip` *(default: true)*  allow or disable forced cache misses (see below) - useful for debugging or dev time
 - `skip3xx`: *(default: false)* never cache 3xx responses
 - `skip4xx`: *(default: false)* never cache 4xx responses
 - `skip5xx`: *(default: false)* never cache 5xx responses
-- `noHeaders`: *(default: false)* do not add X-Output-Cache headers to the response - useful for security if you wish to hide server technologies
+- `noHeaders`: *(default: false)* do not add x-output-cache headers to the response - useful for security if you wish to hide server technologies
 - `staleWhileRevalidate`: *(default: 0)* the default cache provider supports the stale-while-revalidate ttl from the header or will use this setting if useCacheHeader is false
 - `cacheProvider`: *(default: object)* object exposing the default cache and its interface - see below for override settings
 
@@ -55,7 +55,7 @@ const xoc = new OutputCache({ varyByQuery: ['page', 'sort'] });
 
 The following example places Outputcache before "api.middleware" - this ensures all cached responses return as soon as possible and avoid any subsequent data gathering or processing.
 
-```js
+```javascript
 
 const OutputCache = require('outputcache');
 const xoc = new OutputCache();
@@ -75,7 +75,7 @@ app.get('/api/:channel', xoc.middleware, api.middleware, (req, res) => {
 Outputcache supports any cache provider by exposing the cache and get/set methods on its own 'cacheProvider' property. The example below show how redis can be used. 
 The only requirement is that your cache returns a promise - if it doesn't, you can handle this by overriding the get method to wrap the callback in a promise.
 
-```js
+```javascript
 const xoc = require('outputcache');
 const redis = require('redis');
 const client = redis.createClient();
@@ -86,9 +86,6 @@ const xoc = new OutputCache({
         get: key => {
             return new Promise(resolve => {
                 xoc.cacheProvider.cache.get(key, function (err, result) {
-                    if(err || !result) {
-                        return resolve(null);
-                    }
                     return resolve(result);
                 });
             });
@@ -106,11 +103,12 @@ const xoc = new OutputCache({
 
 Passing an instance of a logger to outputcache is no longer supported - hits, misses or cache errors can be logged by listening for events (see below) on the outputcache instance. This gives the developer greater control over the logging format etc.
 
-## Headers
+## HTTP Headers
 
 - Will add 'x-output-cache ms/ht {ttl} {swr}' to the response headers to indicate a miss/hit the ttl of the response in cache and the value of the staleWhileRevalidate in cache if in use
 - Will honour all headers assigned to the original response, including for redirects
 - The x-output-cache header can be disabled by setting noHeaders to true
+- Responses with no-store, no-cache and private cache-control headers are never cached
 
 ## Force cache skip
 
@@ -124,13 +122,13 @@ This behaviour can be disabled by setting allowSkip to false
 
 ## Methods
 
-```js
+```javascript
 xoc.middleware => // (req, res, next)
 ```
 
 ## Events
 
-```js
+```javascript
 xoc.on('hit', cacheItem => 
 
 xoc.on('miss', info => 
