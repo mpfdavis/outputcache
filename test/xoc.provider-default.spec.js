@@ -1,4 +1,4 @@
-var request = require('supertest')
+var request = require('supertest');
 var requireNew = require('require-new');
 var express = require('express');
 var app = express();
@@ -13,18 +13,17 @@ var xoc = new OutputCache({
             maxSize: 1000,
             maxAge: 200
         }),
-        get: key => {
-            return new Promise(resolve => {
+        get: (key) => {
+            return new Promise((resolve) => {
                 throw new Error("Throw error in custom get method and expect OutputCache to catch it");
-                return resolve(xoc.cacheProvider.cache.get(key));
             });
         }
     }
-})
+});
 
 xoc.on('cacheProviderError', function(err){
     //log..
-})
+});
 
 //mock application routes
 app.get('/GetProviderThrow', xoc.middleware, function (req, res) {
@@ -40,6 +39,6 @@ describe('Default cache provider', function () {
             .set('Accept', 'text/html')
             .expect('Content-Type', /html/)
             .expect(200, done);
-    })
+    });
 
-})
+});

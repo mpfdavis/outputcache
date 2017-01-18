@@ -1,5 +1,5 @@
 
-var request = require('supertest')
+var request = require('supertest');
 var requireNew = require('require-new');
 var express = require('express');
 var app = express();
@@ -12,10 +12,10 @@ var OutputCache = requireNew('../src/outputcache');
 var xoc = new OutputCache({
     cacheProvider: {
         cache: memcached,
-        get: key => {
-            return new Promise(resolve => {
+        get: (key) => {
+            return new Promise((resolve) => {
                 xoc.cacheProvider.cache.get(key, function (err, result) {
-                    if(err || !result) {
+                    if (err || !result) {
                         return resolve(null);
                     }
                     return resolve(result);
@@ -23,7 +23,7 @@ var xoc = new OutputCache({
             });
         },
         set: (key, item, ttl) => {
-            xoc.cacheProvider.cache.set(key, item, ttl.maxAge, function(err){
+            xoc.cacheProvider.cache.set(key, item, ttl.maxAge, function (err) {
                 // ...     
             });
         }
@@ -52,6 +52,6 @@ describe('Memcached cache provider', function () {
                     .expect('X-Output-Cache', /ht 600/)
                     .expect(200, done);
             });
-    })
+    });
 
-})
+});

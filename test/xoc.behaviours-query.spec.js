@@ -4,8 +4,8 @@ var express = require('express');
 var app = express();
 
 var OutputCache = requireNew('../src/outputcache');
-var cacheNoQuery = new OutputCache({ varyByQuery: false })
-var cacheQuery = new OutputCache({ varyByQuery: ['hello', 'foo'] })
+var cacheNoQuery = new OutputCache({ varyByQuery: false });
+var cacheQuery = new OutputCache({ varyByQuery: ['hello', 'foo'] });
 
 //mock application routes
 app.get('/GetHtmlIgnoreQuery', cacheNoQuery.middleware, function (req, res) {
@@ -17,7 +17,6 @@ app.get('/GetHtmlQueryArray', cacheQuery.middleware, function (req, res) {
     res.status(200).send('<html></html>');
 });
 
-
 describe('Ignore querystring for cache key', function () {
 
     it('origin returns content based on query string', function (done) {
@@ -28,7 +27,7 @@ describe('Ignore querystring for cache key', function () {
             //miss
             .expect('X-Output-Cache', /ms/)
             .expect(200, 'querystring says hello world', done);
-    })
+    });
 
     it('cache returns same content for same path but different querystring value', function (done) {
         request(app)
@@ -38,9 +37,8 @@ describe('Ignore querystring for cache key', function () {
             //hit
             .expect('X-Output-Cache', /ht 600/)
             .expect(200, 'querystring says hello world', done);
-    })
-})
-
+    });
+});
 
 describe('cachekey honours querystring', function () {
 

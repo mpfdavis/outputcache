@@ -1,7 +1,7 @@
-'use strict';
-const SLRU = require('stale-lru-cache');
-const url = require('url');
-const EventEmitter = require('events').EventEmitter;
+"use strict";
+const SLRU = require("stale-lru-cache");
+const url = require("url");
+const EventEmitter = require("events").EventEmitter;
 
 module.exports = class OutputCache extends EventEmitter {
 
@@ -24,30 +24,31 @@ module.exports = class OutputCache extends EventEmitter {
                 maxAge: this.ttl,
                 staleWhileRevalidate: this.staleWhileRevalidate
             }),
-            get: key => {
-                return new Promise(resolve => {
+            get: (key) => {
+                return new Promise((resolve) => {
                     resolve(this.cacheProvider.cache.get(key));
                 });
             },
             set: (key, item, ttl) => {
                 this.cacheProvider.cache.set(key, item, ttl);
             }
-        }
-        this.header = 'x-output-cache';
+        };
+        this.header = "x-output-cache";
         this.middleware = this.middleware.bind(this);
     }
 
     middleware(req, res, next) {
 
         const urlParsed = url.parse(req.url, true);
-        const isSkipForced = this.allowSkip && ((req.headers[this.header] === 'ms' || urlParsed.query.cache === 'false' || (req.cookies && req.cookies[this.header] === 'ms')));
+        const isSkipForced = this.allowSkip && ((req.headers[this.header] === "ms" || urlParsed.query.cache === "false" || (req.cookies && req.cookies[this.header] === "ms")));
         let cacheKey = `p-${urlParsed.pathname}`;
 
+        if (!this.noHeaders) {
+            res.setHeader(this.header, "ms");
+        }
+
         if (isSkipForced) {
-            if (!this.noHeaders) {
-                res.setHeader(this.header, 'ms');
-            }
-            this.emit('miss', { url: urlParsed.path });                      
+            this.emit("miss", { url: urlParsed.path });
             return next();
         }
 
@@ -75,80 +76,70 @@ module.exports = class OutputCache extends EventEmitter {
 
             if (cacheResult) {
 
+                let result = JSON.parse(cacheResult);
+
                 if (!this.noHeaders) {
-                    cacheResult.headers[this.header] = `ht ${cacheResult.ttl.maxAge} ${cacheResult.ttl.staleWhileRevalidate}`;
+                    result.headers[this.header] = `ht ${result.ttl.maxAge} ${result.ttl.staleWhileRevalidate}`;
                 }
-
-                this.emit('hit', cacheResult);
-
-                res.writeHead(cacheResult.status, cacheResult.headers);
-                
-                return res.end(cacheResult.body);
+                this.emit("hit", result);
+                res.writeHead(result.status, result.headers);
+                return res.end(result.body);
 
             } else {
 
                 res.endOverride = res.end;
-
-                this.emit('miss', { url: urlParsed.path });
+                this.emit("miss", { url: urlParsed.path });
 
                 res.end = (data, encoding, cb) => {
 
-                    let headers = JSON.parse(JSON.stringify(res._headers || {}));
+                    //deep clone
+                    let headers = JSON.parse(JSON.stringify(res._headers || res.headers || {}));
 
-                    if (!headers['cache-control']) {
-                        headers['cache-control'] = `max-age=${this.ttl.maxAge}` + (this.staleWhileRevalidate ? `, stale-while-revalidate=${this.staleWhileRevalidate}` : '');
+                    if (!headers["cache-control"]) {
+                        headers["cache-control"] = `max-age=${this.ttl.maxAge}` + (this.staleWhileRevalidate ? `, stale-while-revalidate=${this.staleWhileRevalidate}` : '');
                     }
 
-                    const ttl = this.useCacheHeader === false ? this.ttl : this.parseCacheControl(headers['cache-control']);
+                    const ttl = this.useCacheHeader === false ? this.ttl : this.parseCacheControl(headers["cache-control"]);
                     const isSkipStatus = (this.skip3xx && res.statusCode >= 300 && res.statusCode < 400) || (this.skip4xx && res.statusCode >= 400 && res.statusCode < 500) || (this.skip5xx && res.statusCode >= 500);
 
                     if (!isSkipStatus && ttl.maxAge) {
 
                         const cacheItem = {
-                            ttl: ttl,
+                            ttl,
+                            headers,
                             key: cacheKey,
                             status: res.statusCode,
-                            headers: headers,
                             body: data.toString(),
                             url: urlParsed.path
                         }
-
-                        this.cacheProvider.set(cacheKey, cacheItem, ttl);
-                    }
-
-                    if (!this.noHeaders) {
-                        res.setHeader(this.header, 'ms');
+                        this.cacheProvider.set(cacheKey, JSON.stringify(cacheItem), ttl);
                     }
                     return res.endOverride(data, encoding, cb);
-
                 }
                 return next();
-
             }
 
-        }).catch(err => {
-            if (!this.noHeaders) {
-                res.setHeader(this.header, 'ms');
-            }
-            this.emit('miss', { url: urlParsed.path });                                  
-            this.emit('cacheProviderError', err);
+        }).catch((err) => {
+            this.emit("miss", { url: urlParsed.path });
+            this.emit("cacheProviderError", err);
             return next();
         });
     }
 
+    //10x faster than regex
     parseCacheControl(header) {
         let options = { maxAge: 0, staleWhileRevalidate: 0 }, pos = 0, seconds = 0;
         if (header) {
             header = header.toLowerCase();
-            if (header.includes('no-cache') || header.includes('no-store') || header.includes('private')) {
+            if (header.includes("no-cache") || header.includes("no-store") || header.includes("private")) {
                 return options;
             } else {
-                pos = header.indexOf('max-age=');
+                pos = header.indexOf("max-age=");
                 seconds = (pos !== -1) ? parseInt(header.substr(pos + 8), 10) : NaN;
-                if (seconds >= 0) options.maxAge = seconds;
-                pos = header.indexOf('stale-while-revalidate=');
+                if (seconds >= 0) { options.maxAge = seconds };
+                pos = header.indexOf("stale-while-revalidate=");
                 seconds = (pos !== -1) ? parseInt(header.substr(pos + 23), 10) : NaN;
-                if (seconds >= 0) options.staleWhileRevalidate = seconds;
+                if (seconds >= 0) { options.staleWhileRevalidate = seconds };
             }
         }
         return options;

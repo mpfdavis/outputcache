@@ -1,10 +1,10 @@
-var request = require('supertest')
+var request = require('supertest');
 var requireNew = require('require-new');
 var express = require('express');
 var app = express();
 
 var OutputCache = requireNew('../src/outputcache');
-var cache = new OutputCache({ varyByQuery: ['hello', 'foo'], allowSkip: false, skip3xx: true, skip4xx: true, skip5xx: true })
+var cache = new OutputCache({ varyByQuery: ['hello', 'foo'], allowSkip: false, skip3xx: true, skip4xx: true, skip5xx: true });
 
 app.get('/GetHtmlNoSkip', cache.middleware, function (req, res) {
     res.status(200).send('<html></html>');
@@ -38,12 +38,9 @@ describe('Disable cache deliberate cache skip via request', function () {
                     .expect('Content-Type', /html/)
                     .expect('X-Output-Cache', /ht 600/)
                     .expect(200, '<html></html>', done);
-
             });
-
-    })
-
-})
+    });
+});
 
 describe('skip cache for specific status codes', function () {
 
@@ -63,7 +60,7 @@ describe('skip cache for specific status codes', function () {
                     .expect(301, '<html></html>', done);
             });
 
-    })
+    });
 
     it('cache skip for 404 when skip4xx is true', function (done) {
         //cache miss
@@ -81,7 +78,7 @@ describe('skip cache for specific status codes', function () {
                     .expect(404, '<html></html>', done);
             });
 
-    })
+    });
 
     it('cache skip for 500 when skip5xx is true', function (done) {
         //cache miss
@@ -99,8 +96,6 @@ describe('skip cache for specific status codes', function () {
                     .expect(500, '<html></html>', done);
             });
 
-    })
+    });
 
-
-
-})
+});

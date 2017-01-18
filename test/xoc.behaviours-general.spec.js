@@ -6,8 +6,8 @@ var cookieParser = require('cookie-parser');
 app.use(cookieParser());
 
 var OutputCache = requireNew('../src/outputcache');
-var cache = new OutputCache({ varyByQuery: true, staleWhileRevalidate: 700, varyByCookies: ['hello'] })
-var cacheNoHeaders = new OutputCache({ noHeaders: true })
+var cache = new OutputCache({ varyByQuery: true, staleWhileRevalidate: 700, varyByCookies: ['hello'] });
+var cacheNoHeaders = new OutputCache({ noHeaders: true });
 var cacheHeaders = new OutputCache();
 
 app.get('/GetJSON', cache.middleware, function (req, res) {
@@ -96,7 +96,7 @@ describe('GET JSON with headers and status', function () {
             .expect('Content-Type', /json/)
             .expect('X-Output-Cache', /ms/)
             .expect(200, { hello: 'world' }, done);
-    })
+    });
 
     it('cache responds with json and cache hit header', function (done) {
         request(app)
@@ -105,8 +105,8 @@ describe('GET JSON with headers and status', function () {
             .expect('Content-Type', /json/)
             .expect('X-Output-Cache', /ht 600 700/)
             .expect(200, { hello: 'world' }, done);
-    })
-})
+    });
+});
 
 describe('GET HTML with headers and status', function () {
 
@@ -117,7 +117,7 @@ describe('GET HTML with headers and status', function () {
             .expect('Content-Type', /html/)
             .expect('X-Output-Cache', /ms/)
             .expect(200, '<html></html>', done);
-    })
+    });
 
     it('cache responds with html and cache hit header', function (done) {
         request(app)
@@ -126,8 +126,8 @@ describe('GET HTML with headers and status', function () {
             .expect('Content-Type', /html/)
             .expect('X-Output-Cache', /ht 600 700/)
             .expect(200, '<html></html>', done);
-    })
-})
+    });
+});
 
 describe('GET Redirect with status and result', function () {
 
@@ -138,7 +138,7 @@ describe('GET Redirect with status and result', function () {
             .expect('Content-Type', /html/)
             .expect('X-Output-Cache', /ms/)
             .expect(301, done);
-    })
+    });
 
     it('cache responds with 301 and cache hit header', function (done) {
         request(app)
@@ -147,9 +147,9 @@ describe('GET Redirect with status and result', function () {
             .expect('Content-Type', /html/)
             .expect('X-Output-Cache', /ht 600 700/)
             .expect(301, done);
-    })
+    });
 
-})
+});
 
 describe('Honours cache miss headers', function (done) {
 
@@ -167,7 +167,7 @@ describe('Honours cache miss headers', function (done) {
             .expect('Content-Type', /html/)
             .expect('X-Output-Cache', /ms/)
             .expect(200, '<html></html>', done);
-    })
+    });
 
     it('no-cache cache header causes ms', function (done) {
         request(app)
@@ -183,7 +183,7 @@ describe('Honours cache miss headers', function (done) {
             .expect('Content-Type', /html/)
             .expect('X-Output-Cache', /ms/)
             .expect(200, '<html></html>', done);
-    })
+    });
 
     it('private cache header causes ms', function (done) {
         request(app)
@@ -199,9 +199,9 @@ describe('Honours cache miss headers', function (done) {
             .expect('Content-Type', /html/)
             .expect('X-Output-Cache', /ms/)
             .expect(200, '<html></html>', done);
-    })
+    });
 
-})
+});
 
 describe('Honours custom headers', function () {
     it('origin returns a custom header', function (done) {
@@ -212,7 +212,7 @@ describe('Honours custom headers', function () {
             .expect('X-Output-Cache', /ms/)
             .expect('X-Custom', /custom-header/)
             .expect(200, '<html></html>', done);
-    })
+    });
 
     it('cache returns same custom header as origin', function (done) {
         request(app)
@@ -222,8 +222,8 @@ describe('Honours custom headers', function () {
             .expect('X-Output-Cache', /ht 600 700/)
             .expect('X-Custom', /custom-header/)
             .expect(200, '<html></html>', done);
-    })
-})
+    });
+});
 
 describe('Honours cache control', function () {
 
@@ -245,7 +245,7 @@ describe('Honours cache control', function () {
             .expect('X-Output-Cache', /ht 722 0/)
             .expect('Cache-Control', /max-age=722/)
             .expect(200, '<html></html>', done);
-    })
+    });
 
     it('returns default cache control header if none set', function (done) {
         request(app)
@@ -256,7 +256,7 @@ describe('Honours cache control', function () {
             .expect('Cache-Control', /max-age=600/)
             .expect('Cache-Control', /stale-while-revalidate=700/)
             .expect(200, '<html></html>', done);
-    })
+    });
 
     it('origin returns supplied max-age when invalid', function (done) {
         request(app)
@@ -276,7 +276,7 @@ describe('Honours cache control', function () {
             .expect('X-Output-Cache', /ms/)
             .expect('Cache-Control', /max-age=wrong/)
             .expect(200, '<html></html>', done);
-    })
+    });
 
     it('cache miss for invalid cache control header with integer', function (done) {
         request(app)
@@ -286,7 +286,7 @@ describe('Honours cache control', function () {
             .expect('X-Output-Cache', /ms/)
             .expect('Cache-Control', /676/)
             .expect(200, '<html></html>', done);
-    })
+    });
 
     it('cache uses headers for ttl if useCacheHeader not false', function (done) {
         request(app)
@@ -303,10 +303,9 @@ describe('Honours cache control', function () {
                     .expect('X-Output-Cache', /ht 1068 2000/)
                     .expect(200, '<html></html>', done);
             });
+    });
 
-    })
-
-})
+});
 
 describe('Honours querystring', function () {
 
@@ -317,7 +316,6 @@ describe('Honours querystring', function () {
             .expect('Content-Type', /html/)
             .expect('X-Output-Cache', /ms/)
             .expect(200, 'querystring says hello world', done);
-
     })
 
     it('cache honours querystring if value set', function (done) {
@@ -327,8 +325,7 @@ describe('Honours querystring', function () {
             .expect('Content-Type', /html/)
             .expect('X-Output-Cache', /ht 600 700/)
             .expect(200, 'querystring says hello world', done);
-
-    })
+    });
 
     it('cache miss if querystring changes key', function (done) {
         request(app)
@@ -337,10 +334,9 @@ describe('Honours querystring', function () {
             .expect('Content-Type', /html/)
             .expect('X-Output-Cache', /ms/)
             .expect(200, 'querystring says hello dave', done);
+    });
 
-    })
-
-})
+});
 
 describe('Honours cookies', function () {
 
@@ -352,7 +348,7 @@ describe('Honours cookies', function () {
             .expect('Content-Type', /html/)
             .expect('X-Output-Cache', /ms/)
             .expect(200, 'cookie says hello world', done);
-    })
+    });
 
     it('cache returns same content based on cookie', function (done) {
         request(app)
@@ -362,7 +358,7 @@ describe('Honours cookies', function () {
             .expect('Content-Type', /html/)
             .expect('X-Output-Cache', /ht 600 700/)
             .expect(200, 'cookie says hello world', done);
-    })
+    });
 
     it('cache miss if cookie value changes', function (done) {
         request(app)
@@ -372,9 +368,9 @@ describe('Honours cookies', function () {
             .expect('Content-Type', /html/)
             .expect('X-Output-Cache', /ms/)
             .expect(200, 'cookie says hello dave', done);
-    })
+    });
 
-})
+});
 
 describe('Cache skip', function () {
 
@@ -401,7 +397,7 @@ describe('Cache skip', function () {
             .expect('X-Output-Cache', /ms/)
             .expect(200, 'querystring says hello dave', done);
 
-    })
+    });
 
     it('cache skip if x-output-cache header with ms supplied by origin', function (done) {
 
@@ -419,9 +415,9 @@ describe('Cache skip', function () {
             .expect('X-Output-Cache', /ms/)
             .expect(200, '<html></html>', done);
 
-    })
+    });
 
-})
+});
 
 describe('Honours no header setting', function () {
 
@@ -448,10 +444,8 @@ describe('Honours no header setting', function () {
                             throw new Error("Expected x-output-cache header to be missing but was found");
                         }
                     })
-            }).end(done)
+            }).end(done);
 
-    })
+    });
 
-})
-
-
+});

@@ -1,4 +1,4 @@
-var request = require('supertest')
+var request = require('supertest');
 var requireNew = require('require-new');
 var express = require('express');
 var app = express();
@@ -11,8 +11,8 @@ var OutputCache = requireNew('../src/outputcache');
 var xoc = new OutputCache({
     cacheProvider: {
         cache: client,
-        get: key => {
-            return new Promise(resolve => {
+        get: (key) => {
+            return new Promise((resolve) => {
                 xoc.cacheProvider.cache.get(key, function (err, result) {
                     if(err || !result) {
                         return resolve(null);
@@ -50,6 +50,6 @@ describe('Redis cache provider', function () {
                     .expect('X-Output-Cache', /ht 600/)
                     .expect(200, done);
             });
-    })
+    });
 
-})
+});
