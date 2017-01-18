@@ -58,8 +58,6 @@ app.get('/', xoc.middleware, api.middleware, (req, res) => {
   res.set({'Cache-Control': 600});  
   res.render('hello', {hello:'world'}); //will be hit once every 10 minutes 
 });
-
-
 ```
 
 ### Cache all routes
@@ -73,7 +71,6 @@ app.get('/api/:channel', xoc.middleware, api.middleware, (req, res) => {
   res.set({'Cache-Control': 600});  
   res.json({hello:'world'}); //will be hit once every 10 minutes 
 });
-
 ```
 
 ### Cache redirects
@@ -87,7 +84,6 @@ app.get('/api/:channel', xoc.middleware, api.middleware, (req, res) => {
   res.set({'Cache-Control': 600});  
   res.redirect('/api/us/:channel'); //will be hit once every 600 minutes 
 });
-
 ```
 ## Using an alternative cache provider e.g. Redis
 
@@ -111,18 +107,16 @@ const xoc = new OutputCache({
             });
         },
         set: (key, item, ttl) => {
-            xoc.cacheProvider.cache.set(key, JSON.stringify(item));
+            xoc.cacheProvider.cache.set(key, item);
             xoc.cacheProvider.cache.expire(key, ttl);
         }
     }
 });
-
 ```
 
 ## API
 
-#### `Constructor(options)`
-
+### `Constructor(options)`
 
 * `options.ttl`: *(default: `600`)* the standard ttl as number in seconds for each cache item (used when option.useCacheHeader is false)
 * `options.maxItems`: *(default: `1000`)* the number of items allowed in the cache before older, unused items are pushed out - this can be set much higher for 'out of process' caches such as redis
@@ -140,13 +134,13 @@ const xoc = new OutputCache({
 **Note:** `options.varyByCookies` requires you to register a cookie parser such as the 'cookie-parser' module in your application before Outputcache.
 
 
-#### Methods
+### Methods
 
 ```javascript
 xoc.middleware => // (req, res, next)
 ```
 
-#### Events
+### Events
 
 ```javascript
 xoc.on('hit', cacheItem => 
@@ -161,12 +155,14 @@ xoc.on('cacheProviderError', err =>
 
 Passing an instance of a logger to outputcache is no longer supported - hits, misses or cache errors can be logged by listening for events (see below) on the outputcache instance. This gives the developer greater control over the logging format etc.
 
+
 ## HTTP Headers
 
 - Will add 'x-output-cache ms/ht {ttl} {swr}' to the response headers to indicate a miss/hit the ttl of the response in cache and the value of the staleWhileRevalidate in cache if in use
 - Will honour all headers assigned to the original response, including for redirects
 - The x-output-cache header can be disabled by setting noHeaders to true
 - Responses with no-store, no-cache and private cache-control headers are never cached
+
 
 ## Force cache skip (client-side/request bypass)
 
@@ -176,7 +172,11 @@ It may be useful to skip outputcache completely for specific requests, you can f
 - The request has an 'x-output-cache' header set with the value 'ms'
 - The request has an x-output-cache cookie with value 'ms'
 
-This behaviour can be disabled by setting allowSkip to false
+This behaviour can be disabled by setting `options.allowSkip` to false
+
+### Status skip
+
+You can configure outputcache to automatically skip caching responses based on your original status codes too, these settings are unaffected by `options.allowSkip`
 
 
 ## Performance
@@ -195,6 +195,12 @@ Under a high ratio of cache hits to misses, you will see an inverse relationship
 
 ## Troubleshooting
 
+
 - You can only cache serializable data - if you override the set or get cacheProvider methods, you should avoid stringifying or parsing the cache item - outputcache does this internally already. 
 - If you are get only x-output-cache : 'ms headers, you might be throwing an error in your cache provider or a custom get/set method - usually due to serialization. You can check this by listening for the 'cacheProviderError' event (above).
 - If your application performs redirects in routes or middleware where outputcache is used, you should place outputcache before these.
+
+
+## TODO:
+
+- Add load test data and benchmarks

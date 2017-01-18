@@ -24,27 +24,21 @@ module.exports = class OutputCache extends EventEmitter {
                 maxAge: this.ttl,
                 staleWhileRevalidate: this.staleWhileRevalidate
             }),
-            get: (key) => {
-                return new Promise((resolve) => {
-                    resolve(this.cacheProvider.cache.get(key));
-                });
-            },
-            set: (key, item, ttl) => {
-                this.cacheProvider.cache.set(key, item, ttl);
-            }
+            get: this.defaultGet.bind(this),
+            set: this.defaultSet.bind(this)
         };
-        this.header = "x-output-cache";
         this.middleware = this.middleware.bind(this);
+        this._header = "x-output-cache";
     }
 
     middleware(req, res, next) {
 
         const urlParsed = url.parse(req.url, true);
-        const isSkipForced = this.allowSkip && ((req.headers[this.header] === "ms" || urlParsed.query.cache === "false" || (req.cookies && req.cookies[this.header] === "ms")));
+        const isSkipForced = this.allowSkip && ((req.headers[this._header] === "ms" || urlParsed.query.cache === "false" || (req.cookies && req.cookies[this._header] === "ms")));
         let cacheKey = `p-${urlParsed.pathname}`;
 
         if (!this.noHeaders) {
-            res.setHeader(this.header, "ms");
+            res.setHeader(this._header, "ms");
         }
 
         if (isSkipForced) {
@@ -79,7 +73,7 @@ module.exports = class OutputCache extends EventEmitter {
                 let result = JSON.parse(cacheResult);
 
                 if (!this.noHeaders) {
-                    result.headers[this.header] = `ht ${result.ttl.maxAge} ${result.ttl.staleWhileRevalidate}`;
+                    result.headers[this._header] = `ht ${result.ttl.maxAge} ${result.ttl.staleWhileRevalidate}`;
                 }
                 this.emit("hit", result);
                 res.writeHead(result.status, result.headers);
@@ -124,6 +118,16 @@ module.exports = class OutputCache extends EventEmitter {
             this.emit("cacheProviderError", err);
             return next();
         });
+    }
+
+    defaultGet(key) {
+        return new Promise((resolve) => {
+            resolve(this.cacheProvider.cache.get(key));
+        });
+    }
+
+    defaultSet(key, item, ttl) {
+        this.cacheProvider.cache.set(key, item, ttl);
     }
 
     //10x faster than regex

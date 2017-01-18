@@ -1,6 +1,6 @@
 {
   "name": "outputcache",
-  "version": "5.0.5",
+  "version": "5.1.0",
   "description": "Cache api responses, react and more using redis, memcached or any other cache provider.",
   "main": "bin/outputcache.js",
   "scripts": {
@@ -16,18 +16,22 @@
   "keywords": [
     "redis",
     "memcached",
-    "response",
-    "http",
     "outputcache",
-    "output",
-    "output cache",
     "api cache",
+    "response cache",
+    "request cache",
+    "output cache",
+    "route cache",
+    "middleware cache",
+    "http cache",
+    "html cache",
+    "json cache",
+    "react cache",
     "performance",
     "cache",
     "node",
     "caching",
     "memory",
-    "process",
     "render"
   ],
   "author": "Matthew Davis",
@@ -37,7 +41,7 @@
   },
   "homepage": "",
   "dependencies": {
-    "stale-lru-cache": "^5.0.1"
+    "stale-lru-cache": "^5.1.1"
   },
   "devDependencies": {
     "babel-cli": "^6.18.0",
