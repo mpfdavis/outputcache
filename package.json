@@ -1,6 +1,6 @@
 {
   "name": "outputcache",
-  "version": "5.0.3",
+  "version": "5.0.4",
   "description": "Cache api responses, react and more using redis, memcached or any other cache provider.",
   "main": "bin/outputcache.js",
   "scripts": {

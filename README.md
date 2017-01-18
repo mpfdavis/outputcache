@@ -5,6 +5,7 @@
 [![Downloads](https://img.shields.io/npm/dt/outputcache.svg)](https://www.npmjs.com/package/outputcache)
 [![Build Status](https://travis-ci.org/mpfdavis/outputcache.svg?branch=master)](https://travis-ci.org/mpfdavis/outputcache)
 [![Test Coverage](https://coveralls.io/repos/mpfdavis/outputcache/badge.svg?branch=master&service=github)](https://coveralls.io/github/mpfdavis/outputcache?branch=master)
+[![Codacy Badge](https://api.codacy.com/project/badge/Grade/315fc61665cb4871a55314cffad0c3f6)](https://www.codacy.com/app/mpfdavis/outputcache?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=mpfdavis/outputcache&amp;utm_campaign=Badge_Grade)
 
 Cache api responses, react and more using redis, memcached or any other cache provider. 
 
