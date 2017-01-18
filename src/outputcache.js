@@ -115,7 +115,7 @@ module.exports = class OutputCache extends EventEmitter {
                         this.cacheProvider.set(cacheKey, JSON.stringify(cacheItem), ttl);
                     }
                     return res.endOverride(data, encoding, cb);
-                }
+                };
                 return next();
             }
 

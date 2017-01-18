@@ -181,6 +181,10 @@ Outputcache has more impact on your application performance the more it gets hit
 - Increase your cache size; V8 only gets 1.72GB memory assigned to the process by default, ensure you set a sensible maxItems ceiling, or if you have memory available you could increase --max_old_space_size=MB.
 - Increase ttl of responses; if you can set a longer ttl, you should. In cases where some responses can be cached for a longer time than others, you should use cache-control headers to vary ttl for different responses and increase it where possible.
 
+Under a high ratio of cache hits to misses, you will see an inverse relationship between requests and latency
+
+![requests](https://www.dropbox.com/s/of1d38r9l3yx4km/Screen%20Shot%202017-01-13%20at%2015.26.30.png?raw=1)
+![latency](https://www.dropbox.com/s/prxts69zp1obcel/Screen%20Shot%202017-01-13%20at%2015.26.55.png?raw=1)
 
 ## Troubleshooting
 

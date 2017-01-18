@@ -266,7 +266,7 @@ describe("Honours cache control", function () {
             .expect("X-Output-Cache", /ms/)
             .expect("Cache-Control", /max-age=wrong/)
             .expect(200, "<html></html>", done);
-    })
+    });
 
     it("cache miss for invalid cache control header", function (done) {
         request(app)

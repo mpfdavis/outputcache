@@ -1,12 +1,12 @@
-var request = require('supertest');
-var requireNew = require('require-new');
-var express = require('express');
+var request = require("supertest");
+var requireNew = require("require-new");
+var express = require("express");
 var app = express();
 
-const SLRU = require('stale-lru-cache');
-var OutputCache = requireNew('../src/outputcache');
+const SLRU = require("stale-lru-cache");
+var OutputCache = requireNew("../src/outputcache");
 
-//assign 'custom' cache provider with custom get method throwing error
+//assign "custom" cache provider with custom get method throwing error
 var xoc = new OutputCache({
     cacheProvider: {
         cache: new SLRU({
@@ -21,23 +21,23 @@ var xoc = new OutputCache({
     }
 });
 
-xoc.on('cacheProviderError', function(err){
+xoc.on("cacheProviderError", function(err){
     //log..
 });
 
 //mock application routes
-app.get('/GetProviderThrow', xoc.middleware, function (req, res) {
-    res.status(200).send('<html><html>');
+app.get("/GetProviderThrow", xoc.middleware, function (req, res) {
+    res.status(200).send("<html><html>");
 });
 
 //tests
-describe('Default cache provider', function () {
+describe("Default cache provider", function () {
 
-    it('exception thrown by cache provider is caught silently', function (done) {
+    it("exception thrown by cache provider is caught silently", function (done) {
         request(app)
-            .get('/GetProviderThrow')
-            .set('Accept', 'text/html')
-            .expect('Content-Type', /html/)
+            .get("/GetProviderThrow")
+            .set("Accept", "text/html")
+            .expect("Content-Type", /html/)
             .expect(200, done);
     });
 
