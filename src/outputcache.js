@@ -96,7 +96,7 @@ module.exports = class OutputCache extends EventEmitter {
                     let headers = JSON.parse(JSON.stringify(res._headers || res.headers || {}));
 
                     if (!headers["cache-control"]) {
-                        headers["cache-control"] = `max-age=${this.ttl.maxAge}` + (this.staleWhileRevalidate ? `, stale-while-revalidate=${this.staleWhileRevalidate}` : '');
+                        headers["cache-control"] = `max-age=${this.ttl.maxAge}` + (this.staleWhileRevalidate ? `, stale-while-revalidate=${this.staleWhileRevalidate}` : "");
                     }
 
                     const ttl = this.useCacheHeader === false ? this.ttl : this.parseCacheControl(headers["cache-control"]);
@@ -144,4 +144,4 @@ module.exports = class OutputCache extends EventEmitter {
         }
         return options;
     }
-}
+};

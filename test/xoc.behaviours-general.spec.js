@@ -316,7 +316,7 @@ describe("Honours querystring", function () {
             .expect("Content-Type", /html/)
             .expect("X-Output-Cache", /ms/)
             .expect(200, "querystring says hello world", done);
-    })
+    });
 
     it("cache honours querystring if value set", function (done) {
         request(app)

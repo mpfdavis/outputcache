@@ -118,22 +118,42 @@ const xoc = new OutputCache({
 
 ```
 
-### API
+## API
 
-- `ttl`: *(default: `600`)* the standard ttl as number in seconds for each cache item (used when option.useCacheHeader is false)
-- `maxItems`: *(default: `1000`)* the number of items allowed in the cache before older, unused items are pushed out - this can be set much higher for 'out of process' caches such as redis
-- `useCacheHeader`: *(default: `true`)* use the max-age cache header from the original response as ttl by default. If you set this to false the options.ttl or default is used instead
-- `varyByQuery`: *(default: `true`)* accepts a boolean or array - true/false to use all/ignore all or array to use only specific querystring arguments in the cache key
-- `varyByCookies`: *(default: `[]`)* accepts an array of cookie names - the cache key will include the value of the named cookie if found in the request
-- `allowSkip` *(default: true)*  allow or disable forced cache misses (see below) - useful for debugging or dev time
-- `skip3xx`: *(default: false)* never cache 3xx responses
-- `skip4xx`: *(default: false)* never cache 4xx responses
-- `skip5xx`: *(default: false)* never cache 5xx responses
-- `noHeaders`: *(default: false)* do not add x-output-cache headers to the response - useful for security if you wish to hide server technologies
-- `staleWhileRevalidate`: *(default: 0)* the default cache provider supports the stale-while-revalidate ttl from the header or will use this setting if useCacheHeader is false
-- `cacheProvider`: *(default: Object)*  interface for the internal cache and its get/set methods - see below for override settings
+#### `Constructor(options)`
 
-**Note:** varyByCookies requires you to register a cookie parser such as the 'cookie-parser' module in your application before Outputcache.
+* `options.ttl`: *(default: `600`)* the standard ttl as number in seconds for each cache item (used when option.useCacheHeader is false)
+* `options.maxItems`: *(default: `1000`)* the number of items allowed in the cache before older, unused items are pushed out - this can be set much higher for 'out of process' caches such as redis
+* `options.useCacheHeader`: *(default: `true`)* use the max-age cache header from the original response as ttl by default. If you set this to false the options.ttl or default is used instead
+* `options.varyByQuery`: *(default: `true`)* accepts a boolean or array - true/false to use all/ignore all or array to use only specific querystring arguments in the cache key
+* `options.varyByCookies`: *(default: `[]`)* accepts an array of cookie names - the cache key will include the value of the named cookie if found in the request
+* `options.allowSkip` *(default: true)*  allow or disable forced cache misses (see below) - useful for debugging or dev time
+* `options.skip3xx`: *(default: false)* never cache 3xx responses
+* `options.skip4xx`: *(default: false)* never cache 4xx responses
+* `options.skip5xx`: *(default: false)* never cache 5xx responses
+* `options.noHeaders`: *(default: false)* do not add x-output-cache headers to the response - useful for security if you wish to hide server technologies
+* `options.staleWhileRevalidate`: *(default: 0)* the default cache provider supports the stale-while-revalidate ttl from the header or will use this setting if useCacheHeader is false
+* `options.cacheProvider`: *(default: Object)*  interface for the internal cache and its get/set methods - see below for override settings
+
+**Note:** `options.varyByCookies` requires you to register a cookie parser such as the 'cookie-parser' module in your application before Outputcache.
+
+
+#### Methods
+
+```javascript
+xoc.middleware => // (req, res, next)
+```
+
+#### Events
+
+```javascript
+xoc.on('hit', cacheItem => 
+
+xoc.on('miss', info => 
+
+xoc.on('cacheProviderError', err => 
+```
+
 
 ## Logging
 
@@ -156,21 +176,6 @@ It may be useful to skip outputcache completely for specific requests, you can f
 
 This behaviour can be disabled by setting allowSkip to false
 
-## Methods
-
-```javascript
-xoc.middleware => // (req, res, next)
-```
-
-## Events
-
-```javascript
-xoc.on('hit', cacheItem => 
-
-xoc.on('miss', info => 
-
-xoc.on('cacheProviderError', err => 
-```
 
 ## Performance
 
