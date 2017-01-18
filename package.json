@@ -1,13 +1,13 @@
 {
   "name": "outputcache",
-  "version": "5.0.4",
+  "version": "5.0.5",
   "description": "Cache api responses, react and more using redis, memcached or any other cache provider.",
   "main": "bin/outputcache.js",
   "scripts": {
     "test": "./node_modules/istanbul/lib/cli.js cover ./node_modules/.bin/_mocha",
     "coveralls": "cat ./coverage/lcov.info | ./node_modules/.bin/coveralls",
     "compile": "babel src --out-dir bin --presets es2015",
-    "prepublish": "npm run compile"
+    "prepublish": "npm test && npm run compile"
   },
   "repository": {
     "type": "git",

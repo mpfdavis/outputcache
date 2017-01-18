@@ -123,6 +123,7 @@ const xoc = new OutputCache({
 
 #### `Constructor(options)`
 
+
 * `options.ttl`: *(default: `600`)* the standard ttl as number in seconds for each cache item (used when option.useCacheHeader is false)
 * `options.maxItems`: *(default: `1000`)* the number of items allowed in the cache before older, unused items are pushed out - this can be set much higher for 'out of process' caches such as redis
 * `options.useCacheHeader`: *(default: `true`)* use the max-age cache header from the original response as ttl by default. If you set this to false the options.ttl or default is used instead

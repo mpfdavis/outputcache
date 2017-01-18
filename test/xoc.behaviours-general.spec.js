@@ -443,7 +443,7 @@ describe("Honours no header setting", function () {
                         if (res.get("x-output-cache")) {
                             throw new Error("Expected x-output-cache header to be missing but was found");
                         }
-                    })
+                    });
             }).end(done);
 
     });
