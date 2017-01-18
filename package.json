@@ -1,6 +1,6 @@
 {
   "name": "outputcache",
-  "version": "5.0.0",
+  "version": "5.0.1",
   "description": "Cache api responses, react and more using redis, memcached or any other cache provider.",
   "main": "bin/outputcache.js",
   "scripts": {
@@ -53,6 +53,6 @@
     "supertest": "^1.1.0"
   },
   "engines": {
-    "node": ">=0.12.6"
+    "node": ">=4.4.6"
   }
 }

@@ -72,7 +72,7 @@ module.exports = class OutputCache extends EventEmitter {
             }
         }
 
-        this.cacheProvider.get(cacheKey).then(cacheResult => {
+        this.cacheProvider.get(cacheKey).then((cacheResult) => {
 
             if (cacheResult) {
 
@@ -111,7 +111,7 @@ module.exports = class OutputCache extends EventEmitter {
                             status: res.statusCode,
                             body: data.toString(),
                             url: urlParsed.path
-                        }
+                        };
                         this.cacheProvider.set(cacheKey, JSON.stringify(cacheItem), ttl);
                     }
                     return res.endOverride(data, encoding, cb);
@@ -136,10 +136,10 @@ module.exports = class OutputCache extends EventEmitter {
             } else {
                 pos = header.indexOf("max-age=");
                 seconds = (pos !== -1) ? parseInt(header.substr(pos + 8), 10) : NaN;
-                if (seconds >= 0) { options.maxAge = seconds };
+                if (seconds >= 0) { options.maxAge = seconds; }
                 pos = header.indexOf("stale-while-revalidate=");
                 seconds = (pos !== -1) ? parseInt(header.substr(pos + 23), 10) : NaN;
-                if (seconds >= 0) { options.staleWhileRevalidate = seconds };
+                if (seconds >= 0) { options.staleWhileRevalidate = seconds; }
             }
         }
         return options;

@@ -25,11 +25,15 @@ Outputcache will honour the status, max-age, no-store, no-cache, private and sta
 npm install outputcache --save
 ```
 
+## Dependencies
+
+None, other than a default in-process cache provider 'stale-lru-cache'. This was chosen as it outperforms alternatives in benchmarks (see its repo), is free of memory leaks and enables you to get going quickly. You can easily override this with redis or any other (see below). 
+
 ## Initialize
 
 ```javascript
 const OutputCache = require('outputcache');
-const xoc = new OutputCache({ varyByQuery: ['page', 'sort'] }); //see api for more options
+const xoc = new OutputCache({ varyByQuery: ['page', 'sort'] }); //see api below for more options
 ```
 
 ## Usage
