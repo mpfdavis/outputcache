@@ -12,7 +12,7 @@ Cache api responses, react and more using redis, memcached or any other cache pr
 
 ## Why?
  
-Simple middleware, in pure Node - inject as a middleware and it will cache the output and headers of your response. This makes it easy to create a highly scalable redis cache for your api or simply boost the throughput of your node application if using a heavier render engine such as React.
+Simple middleware, in pure Node - inject and it will cache the output and headers of your response. This makes it easy to create a highly scalable Redis cache for your API or simply boost the throughput of your node application if using a heavier render engine such as React.
 
 Outputcache will honour the status, max-age, no-store, no-cache, private and stale-while-revalidate headers from your original response for ttl by default. This makes it seamless and your origin able to dynamically dictate the ttl of each response using http rules. It is also [highly configurable](#api), enabling you to fine-tune how and what you cache.
 
@@ -29,7 +29,7 @@ npm install outputcache --save
 
 ## Dependencies
 
-None, other than a default in-process cache provider 'stale-lru-cache'. This was chosen as it outperforms alternatives in benchmarks (see its repo), is free of memory leaks and enables you to get going quickly. You can easily override this with redis or any other (see api below). 
+None, other than a default in-process cache provider 'stale-lru-cache'. This was chosen as it outperforms alternatives in benchmarks (see its repo), is free of memory leaks and enables you to get going quickly. You can easily override this with Redis or any other ([see API below](#api)). 
 
 ## Initialize
 
@@ -116,16 +116,16 @@ const xoc = new OutputCache({
 
 ### Silent failover
 
-If you are only seeing x-output-cache : 'ms' headers in the response, you might be throwing an error in your cache provider or a custom get/set method - usually due to serialization. If there is an error with the cache provider e.g. your redis connection, outputcache will not bubble the error to the client using next(err) in order to remain transparent and provider failover. This allows your original route to serve a 200 if Redis fails and silently log any cache errors by listening for the 'cacheProviderError' event (see events above).
+If you are only seeing x-output-cache : 'ms' headers in the response, you might be throwing an error in your cache provider or a custom get/set method - usually due to serialization. If there is an error with the cache provider e.g. your Redis connection, Outputcache will not bubble the error to the client using next(err) in order to remain transparent and provide failover. This allows your original route to serve a 200 if Redis fails and silently log any cache errors by listening for the 'cacheProviderError' event ([see events](#events)).
 
 
 ## API
 
 ### `Constructor(options)`
 
-* `options.ttl`: *(default: `600`)* the standard ttl as number in seconds for each cache item (used when option.useCacheHeader is false)
-* `options.maxItems`: *(default: `1000`)* the number of items allowed in the cache before older, unused items are pushed out - this can be set much higher for 'out of process' caches such as redis
-* `options.useCacheHeader`: *(default: `true`)* use the max-age cache header from the original response as ttl by default. If you set this to false the options.ttl or default is used instead
+* `options.ttl`: *(default: `600`)* the standard ttl as number in seconds for each cache item (used when `options.useCacheHeader` is false)
+* `options.maxItems`: *(default: `1000`)* the number of items allowed in the cache before older, unused items are pushed out - this can be set much higher for 'out of process' caches such as Redis
+* `options.useCacheHeader`: *(default: `true`)* use the max-age cache header from the original response as ttl by default. If you set this to false the `options.ttl` or default is used instead
 * `options.varyByQuery`: *(default: `true`)* accepts a boolean or array - true/false to use all/ignore all or array to use only specific querystring arguments in the cache key
 * `options.varyByCookies`: *(default: `[]`)* accepts an array of cookie names - the cache key will include the value of the named cookie if found in the request
 * `options.allowSkip` *(default: true)*  allow or disable forced cache misses (see below) - useful for debugging or dev time
@@ -133,7 +133,7 @@ If you are only seeing x-output-cache : 'ms' headers in the response, you might 
 * `options.skip4xx`: *(default: false)* never cache 4xx responses
 * `options.skip5xx`: *(default: false)* never cache 5xx responses
 * `options.noHeaders`: *(default: false)* do not add x-output-cache headers to the response - useful for security if you wish to hide server technologies
-* `options.staleWhileRevalidate`: *(default: 0)* the default cache provider supports the stale-while-revalidate ttl from the header or will use this setting if useCacheHeader is false
+* `options.staleWhileRevalidate`: *(default: 0)* the default cache provider supports the stale-while-revalidate ttl from the header or will use this setting if `options.useCacheHeader` is false
 * `options.cacheProvider`: *(default: Object)*  interface for the internal cache and its get/set methods - see above example for override settings.
 
 
@@ -172,7 +172,7 @@ xoc.on('cacheProviderError', err => //log problem with cache engine or get/set o
 
 ## Logging
 
-Passing an instance of a logger to outputcache is no longer supported - hits, misses or cache errors can be logged by listening for events (see below) on the outputcache instance. This gives the developer greater control over the logging format etc.
+Passing an instance of a logger to outputcache is no longer supported - hits, misses or cache errors can be logged by listening for events (see above) on the outputcache instance. This gives the developer greater control over the logging format etc.
 
 
 ## HTTP Headers
@@ -195,24 +195,25 @@ This behaviour can be disabled by setting `options.allowSkip` to false
 
 ### Status skip
 
-You can configure outputcache to automatically skip caching responses based on your original status codes too, these settings are unaffected by `options.allowSkip`
+You can configure outputcache to automatically skip caching responses based on your original status codes too (skip3xx, skip4xx, skip5xx), these settings are unaffected by `options.allowSkip`
 
 
 ## Performance
 
 Outputcache has more impact on your application performance the more it gets hit, to help maximise performance:
 
-- Ensure cache keys as simple as possible; disable querystring and cookie based caching or only allow specific querystring args to be used as keys.
+- Ensure cache keys are as simple as possible; disable querystring and cookie based caching or only allow specific querystring args to be used as keys.
 - Place outputcache as early in the request/response pipeline as possible; to minimise as much code as possible from executing, you should execute outputcache as the first middleware in your routing (after any cookie, body parsers have fired at the server level).
 - Increase your cache size; V8 only gets 1.72GB memory assigned to the process by default, ensure you set a sensible maxItems ceiling, or if you have memory available you could increase --max_old_space_size=MB.
 - Increase ttl of responses; if you can set a longer ttl, you should. In cases where some responses can be cached for a longer time than others, you should use cache-control headers to vary ttl for different responses and increase it where possible.
-- Cache 5xx (default) - errors are expensive, especially exceptions. Throwing the same errors for the same requests will severely impact performance - you should log them and outputcache can serve your error response from cache.
+- Cache 5xx (default) - errors are expensive, especially exceptions. Throwing the same errors for the same requests will severely impact performance - you should log them and outputcache can serve subsequent error responses from cache.
 
-Under a high ratio of cache hits to misses, you will see an inverse relationship between requests and latency
+Under a high ratio of cache hits to misses, you will begin to see an inverse relationship between requests and latency
+
 
 ![requests](https://www.dropbox.com/s/of1d38r9l3yx4km/Screen%20Shot%202017-01-13%20at%2015.26.30.png?raw=1)
 ![latency](https://www.dropbox.com/s/prxts69zp1obcel/Screen%20Shot%202017-01-13%20at%2015.26.55.png?raw=1)
-
+Based on 1m urls
 
 ## Troubleshooting
 
@@ -223,5 +224,6 @@ Under a high ratio of cache hits to misses, you will see an inverse relationship
 
 ## TODO:
 
+- Add case-insensitive option for path and querystring
 - Add load test data and benchmarks.
 - Method to support pure node server (without middleware)
