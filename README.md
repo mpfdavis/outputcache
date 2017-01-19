@@ -18,7 +18,7 @@ Outputcache will honour the status, max-age, no-store, no-cache, private and sta
 
 - Fast - returns original response directly from cache and uses optimised version of LRU cache by default (Maps)
 - Simple - honours all original headers, status codes and requires few code changes
-- Flexible - use any cache provider under the hood - in-process or remote such as Redis cache
+- Flexible - use any cache provider under the hood, in-process or remote such as Redis cache
 - Well tested - many unit tests, load tested and used in production
 
 
@@ -116,7 +116,7 @@ const xoc = new OutputCache({
 
 ### Silent failover
 
-If you are only seeing x-output-cache : 'ms' headers in the response, you might be throwing an error in your cache provider or a custom get/set method - usually due to serialization. If there is an error with the cache provider e.g. your Redis connection, Outputcache will not bubble the error to the client using next(err) in order to remain transparent and provide failover. This allows your original route to serve a 200 if Redis fails and silently log any cache errors by listening for the 'cacheProviderError' event ([see events](#events)).
+If there is an error with the cache provider e.g. your Redis connection or within your custom get/set, Outputcache will not bubble the error to the client using next(err) in order to remain transparent and provide failover. This allows your original route to serve a 200 if Redis fails and allows you to silently log any cache errors by listening for the 'cacheProviderError' event ([see events](#events)).
 
 
 ## API
@@ -224,6 +224,6 @@ Based on 1m urls
 
 ## TODO:
 
-- Add case-insensitive option for path and querystring
-- Add load test data and benchmarks.
+- Add case-insensitive option for querystring keys
 - Method to support pure node server (without middleware)
+- Add load test data and benchmarks.

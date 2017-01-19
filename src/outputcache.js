@@ -24,8 +24,14 @@ module.exports = class OutputCache extends EventEmitter {
                 maxAge: this.ttl,
                 staleWhileRevalidate: this.staleWhileRevalidate
             }),
-            get: this.defaultGet.bind(this),
-            set: this.defaultSet.bind(this)
+            get: key => {
+                return new Promise((resolve) => {
+                    resolve(this.cacheProvider.cache.get(key));
+                });
+            },
+            set: (key, item, ttl) => {
+                this.cacheProvider.cache.set(key, item, ttl);
+            }
         };
         this.middleware = this.middleware.bind(this);
         this._header = "x-output-cache";
@@ -118,16 +124,6 @@ module.exports = class OutputCache extends EventEmitter {
             this.emit("cacheProviderError", err);
             return next();
         });
-    }
-
-    defaultGet(key) {
-        return new Promise((resolve) => {
-            resolve(this.cacheProvider.cache.get(key));
-        });
-    }
-
-    defaultSet(key, item, ttl) {
-        this.cacheProvider.cache.set(key, item, ttl);
     }
 
     //10x faster than regex
