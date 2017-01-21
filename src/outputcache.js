@@ -18,13 +18,14 @@ module.exports = class OutputCache extends EventEmitter {
         this.noHeaders = options.noHeaders;
         this.useCacheHeader = options.useCacheHeader;
         this.allowSkip = options.allowSkip === false ? false : true;
+        this.caseSensitive = options.caseSensitive === false ? false : true;
         this.cacheProvider = options.cacheProvider || {
             cache: new SLRU({
                 maxSize: this.maxItems,
                 maxAge: this.ttl,
                 staleWhileRevalidate: this.staleWhileRevalidate
             }),
-            get: key => {
+            get: (key) => {
                 return new Promise((resolve) => {
                     resolve(this.cacheProvider.cache.get(key));
                 });
@@ -72,6 +73,8 @@ module.exports = class OutputCache extends EventEmitter {
             }
         }
 
+        cacheKey = this.caseSensitive ? cacheKey : cacheKey.toLowerCase();
+
         this.cacheProvider.get(cacheKey).then((cacheResult) => {
 
             if (cacheResult) {
@@ -81,6 +84,7 @@ module.exports = class OutputCache extends EventEmitter {
                 if (!this.noHeaders) {
                     result.headers[this._header] = `ht ${result.ttl.maxAge} ${result.ttl.staleWhileRevalidate}`;
                 }
+
                 this.emit("hit", result);
                 res.writeHead(result.status, result.headers);
                 return res.end(result.body);

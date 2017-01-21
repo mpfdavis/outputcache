@@ -12,9 +12,9 @@ Cache api responses, react and more using redis, memcached or any other cache pr
 
 ## Why?
  
-Simple middleware, in pure Node - inject and it will cache the output and headers of your response. This makes it easy to create a highly scalable Redis cache for your API or simply boost the throughput of your node application if using a heavier render engine such as React.
+Simple middleware - inject and it will cache the output and headers of each response. This makes it easy to create a highly scalable Redis cache for your API or simply boost the throughput of your node application if using a heavier render engine such as React.
 
-Outputcache will honour the status, max-age, no-store, no-cache, private and stale-while-revalidate headers from your original response for ttl by default. This makes it seamless and your origin able to dynamically dictate the ttl of each response using http rules. It is also [highly configurable](#api), enabling you to fine-tune how and what you cache.
+Outputcache will honour the status, max-age, no-store, no-cache, private and stale-while-revalidate headers from your original response for ttl by default. This enables your services to dynamically dictate the ttl of each response using http rules. It is also highly configurable - [see API](#api).
 
 - Fast - returns original response directly from cache and uses optimised version of LRU cache by default (Maps)
 - Simple - honours all original headers, status codes and requires few code changes
@@ -27,9 +27,11 @@ Outputcache will honour the status, max-age, no-store, no-cache, private and sta
 npm install outputcache --save
 ```
 
+
 ## Dependencies
 
-None, other than a default in-process cache provider 'stale-lru-cache'. This was chosen as it outperforms alternatives in benchmarks (see its repo), is free of memory leaks and enables you to get going quickly. You can easily override this with Redis or any other ([see API below](#api)). 
+Only an optional local cache - 'stale-lru-cache'. This was chosen as it outperforms alternatives in [benchmarks](https://github.com/cyberthom/stale-lru-cache/tree/master/benchmark/results) and enables you to get going quickly. You can easily override this with Redis or any other - [see API](#api). 
+
 
 ## Initialize
 
@@ -37,6 +39,7 @@ None, other than a default in-process cache provider 'stale-lru-cache'. This was
 const OutputCache = require('outputcache');
 const xoc = new OutputCache({ varyByQuery: ['page', 'sort'] }); //see api below for more options
 ```
+
 
 ## Usage
 
@@ -84,9 +87,10 @@ app.get('/api/:channel', xoc.middleware, api.middleware, (req, res) => {
 });
 ```
 
+
 ## Using an alternative cache provider e.g. Redis
 
-Outputcache supports any cache provider by exposing its cache interface on its own 'cacheProvider' property. The only requirement is that your custom cacheProvider returns a promise for its get method.
+Outputcache supports any cache provider by exposing its cache interface on its own 'cacheProvider' property. The only requirement is that your custom cacheProvider returns a Promise for its get method.
 
 The example below shows how Redis can be used as the cacheProvider. 
 
@@ -134,6 +138,7 @@ If there is an error with the cache provider e.g. your Redis connection or withi
 * `options.skip5xx`: *(default: false)* never cache 5xx responses
 * `options.noHeaders`: *(default: false)* do not add x-output-cache headers to the response - useful for security if you wish to hide server technologies
 * `options.staleWhileRevalidate`: *(default: 0)* the default cache provider supports the stale-while-revalidate ttl from the header or will use this setting if `options.useCacheHeader` is false
+* `options.caseSensitive`: *(default: true)* cache key is case-sensitive by default, this can be disabled to minimise cache keys.
 * `options.cacheProvider`: *(default: Object)*  interface for the internal cache and its get/set methods - see above example for override settings.
 
 
@@ -162,7 +167,7 @@ The set method used by the cacheProvider for returning a cache item.
 ### Events
 
 ```javascript
-xoc.on('hit', cacheItem => //{cached response returned}
+xoc.on('hit', cacheItem => //{cache hit}
 
 xoc.on('miss', info =>  //{url missed}
 
@@ -172,12 +177,12 @@ xoc.on('cacheProviderError', err => //log problem with cache engine or get/set o
 
 ## Logging
 
-Passing an instance of a logger to outputcache is no longer supported - hits, misses or cache errors can be logged by listening for events (see above) on the outputcache instance. This gives the developer greater control over the logging format etc.
+Passing an instance of a logger to outputcache is no longer supported - hits, misses or cache errors can be logged by listening [for events](#events) on the outputcache instance. This gives the developer greater control over the log format etc.
 
 
 ## HTTP Headers
 
-- Will add 'x-output-cache ms/ht {ttl} {swr}' to the response headers to indicate a miss/hit the ttl of the response in cache and the value of the staleWhileRevalidate in cache if in use
+- Will add 'x-output-cache ms/ht {ttl} {swr}' to the response headers to indicate a miss/hit/ttl for the response and the value of the staleWhileRevalidate in cache if in use
 - Will honour all headers assigned to the original response, including for redirects
 - The x-output-cache header can be disabled by setting noHeaders to true
 - Responses with no-store, no-cache and private cache-control headers are never cached
@@ -195,7 +200,7 @@ This behaviour can be disabled by setting `options.allowSkip` to false
 
 ### Status skip
 
-You can configure outputcache to automatically skip caching responses based on your original status codes too (skip3xx, skip4xx, skip5xx), these settings are unaffected by `options.allowSkip`
+You can configure outputcache to automatically skip caching responses based on your original status codes too ([skip3xx, skip4xx, skip5xx](#api)), these settings are unaffected by `options.allowSkip`
 
 
 ## Performance
@@ -203,6 +208,7 @@ You can configure outputcache to automatically skip caching responses based on y
 Outputcache has more impact on your application performance the more it gets hit, to help maximise performance:
 
 - Ensure cache keys are as simple as possible; disable querystring and cookie based caching or only allow specific querystring args to be used as keys.
+- Use [case-insensitive cache keys](#api) if your application [supports them](#troubleshooting).
 - Place outputcache as early in the request/response pipeline as possible; to minimise as much code as possible from executing, you should execute outputcache as the first middleware in your routing (after any cookie, body parsers have fired at the server level).
 - Increase your cache size; V8 only gets 1.72GB memory assigned to the process by default, ensure you set a sensible maxItems ceiling, or if you have memory available you could increase --max_old_space_size=MB.
 - Increase ttl of responses; if you can set a longer ttl, you should. In cases where some responses can be cached for a longer time than others, you should use cache-control headers to vary ttl for different responses and increase it where possible.
@@ -213,17 +219,17 @@ Under a high ratio of cache hits to misses, you will begin to see an inverse rel
 
 ![requests](https://www.dropbox.com/s/of1d38r9l3yx4km/Screen%20Shot%202017-01-13%20at%2015.26.30.png?raw=1)
 ![latency](https://www.dropbox.com/s/prxts69zp1obcel/Screen%20Shot%202017-01-13%20at%2015.26.55.png?raw=1)
-Based on 1m urls
+
 
 ## Troubleshooting
 
 - You can only cache serializable data - if you override the set or get cacheProvider methods, you should avoid stringifying or parsing the cache item - outputcache does this internally already. 
-- If you are only seeing x-output-cache : 'ms' headers in the response, you might be throwing an error in your cache provider or a custom get/set method - usually due to serialization. If there is an error with the cache provider e.g. your redis connection, outputcache will not bubble the error to the client using next(err) in order to remain transparent. This allows your original route to serve a 200 if Redis fails and silently log any cache errors by listening for the 'cacheProviderError' event (see events above).
+- If you are only seeing x-output-cache : 'ms' headers in the response, you might be throwing an error in your cache provider or a custom get/set method see [silent failover](#api). 
 - If your application performs redirects in routes or middleware where outputcache is used, you should place outputcache before these.
+- `options.caseSensitive` - if you disable this option (enabled by default), ensure your application is not case-sensitive to querystring or cookie arguments, if these are enabled too.
 
 
 ## TODO:
 
-- Add case-insensitive option for querystring keys
-- Method to support pure node server (without middleware)
+- Method to support pure node server (without middleware).
 - Add load test data and benchmarks.

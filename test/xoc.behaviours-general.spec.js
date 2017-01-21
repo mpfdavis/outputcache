@@ -9,6 +9,7 @@ var OutputCache = requireNew("../src/outputcache");
 var cache = new OutputCache({ varyByQuery: true, staleWhileRevalidate: 700, varyByCookies: ["hello"] });
 var cacheNoHeaders = new OutputCache({ noHeaders: true });
 var cacheHeaders = new OutputCache();
+var cacheCaseIns = new OutputCache({ caseSensitive: false });
 
 app.get("/GetJSON", cache.middleware, function (req, res) {
     res.setHeader("Content-Type", "application/json");
@@ -86,7 +87,11 @@ app.get("/GetHtmlNoHeader", cacheNoHeaders.middleware, function (req, res) {
     res.status(200).send("<html></html>");
 });
 
-//tests
+app.get("/GetHtmlInSensitive", cacheCaseIns.middleware, function (req, res) {
+    res.status(200).send("<html></html>");
+});
+
+
 describe("GET JSON with headers and status", function () {
 
     it("origin responds with json and cache miss header", function (done) {
@@ -151,7 +156,7 @@ describe("GET Redirect with status and result", function () {
 
 });
 
-describe("Honours cache miss headers", function (done) {
+describe("Honours cache miss headers", function () {
 
     it("no-store cache header causes ms", function (done) {
         request(app)
@@ -446,6 +451,44 @@ describe("Honours no header setting", function () {
                     });
             }).end(done);
 
+    });
+
+});
+
+describe("Casing toggle", function () {
+
+    it("cache miss when key casing changes and caseSensitive enabled (default)", function (done) {
+
+        request(app)
+            .get("/GetHtmlHeaderTtl?test=lower")
+            .set("Accept", "text/html")
+            .expect("Content-Type", /html/)
+            .expect("X-Output-Cache", /ms/)
+            .expect(200, "<html></html>", function () {
+                request(app)
+                    .get("/GetHtmlHeaderTtl?TEST=LOWER")
+                    .set("Accept", "text/html")
+                    .expect("Content-Type", /html/)
+                    .expect("X-Output-Cache", /ms/)
+                    .expect(200, "<html></html>", done);
+            });
+
+    });
+
+    it("cache hit when key casing changes and caseSensitive disabled", function (done) {
+        request(app)
+            .get("/GetHtmlInSensitive?test=lower")
+            .set("Accept", "text/html")
+            .expect("Content-Type", /html/)
+            .expect("X-Output-Cache", /ms/)
+            .expect(200, "<html></html>", function () {
+                request(app)
+                    .get("/GetHtmlInSensitive?TEST=LOWER")
+                    .set("Accept", "text/html")
+                    .expect("Content-Type", /html/)
+                    .expect("X-Output-Cache", /ht 600 0/)
+                    .expect(200, "<html></html>", done);
+            });
     });
 
 });
