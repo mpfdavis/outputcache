@@ -12,7 +12,7 @@ Cache api responses, react and more using Redis, Memcached or any other cache pr
 
 ## Why?
  
-Simple middleware - inject and it will cache the output and headers of each response. This makes it easy to create a highly scalable [Redis cache for your Node API](#using-an-alternative-cache-provider-redis) or simply boost the throughput of your Node application if using a heavier render engine such as React.
+Simple middleware - inject and it will cache the output and headers of each response. This makes it easy to create a highly scalable [Redis cache for your Node API](#using-an-alternative-cache-provider---redis) or simply boost the throughput of your Node application if using a heavier render engine such as React.
 
 Outputcache will honour the status, max-age, no-store, no-cache, private and stale-while-revalidate headers from your original response for ttl by default. This enables your services to dynamically dictate the ttl of each response using http rules. It is also highly configurable - [see API](#api).
 
