@@ -232,5 +232,6 @@ Under a high ratio of cache hits to misses, you will begin to see an inverse rel
 
 ## TODO:
 
+- Add integration tests for common use cases
 - Method to support any node server (without middleware).
 - Add load test data and benchmarks.

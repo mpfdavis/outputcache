@@ -6,10 +6,10 @@ var cookieParser = require("cookie-parser");
 app.use(cookieParser());
 
 var OutputCache = requireNew("../src/outputcache");
-var cache = new OutputCache({ varyByQuery: true, staleWhileRevalidate: 700, varyByCookies: ["hello"] });
-var cacheNoHeaders = new OutputCache({ noHeaders: true });
 var cacheHeaders = new OutputCache();
+var cacheNoHeaders = new OutputCache({ noHeaders: true });
 var cacheCaseIns = new OutputCache({ caseSensitive: false });
+var cache = new OutputCache({ varyByQuery: true, staleWhileRevalidate: 700, varyByCookies: ["hello"] });
 
 app.get("/GetJSON", cache.middleware, function (req, res) {
     res.setHeader("Content-Type", "application/json");
