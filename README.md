@@ -12,14 +12,14 @@ Cache api responses, react and more using Redis, Memcached or any other cache pr
 
 ## Why?
  
-Simple middleware - inject and it will cache the output and headers of each response. This makes it easy to create a highly scalable [Redis cache for your Node API](#using-an-alternative-cache-provider---redis) or simply boost the throughput of your Node application if using a heavier render engine such as React.
+Simple middleware - it will cache the output and headers of each response. This makes it easy to create a highly scalable [Redis cache for your Node API](#using-an-alternative-cache-provider---redis) or simply boost the throughput of your Node application if using a heavier render engine such as React.
 
 Outputcache will honour the status, max-age, no-store, no-cache, private and stale-while-revalidate headers from your original response for ttl by default. This enables your services to dynamically dictate the ttl of each response using http rules. It is also highly configurable - [see API](#api).
 
 - Fast - returns original response directly from cache and uses optimised version of LRU cache by default (Maps)
 - Simple - honours all original headers, status codes and requires few code changes
 - Flexible - use any cache provider under the hood, in-process or remote such as Redis cache
-- Well tested - many unit tests, load tested and used in production
+- Well tested - many unit tests, load tested and battle-tested in production
 
 
 ## Installation
@@ -30,14 +30,14 @@ npm install outputcache --save
 
 ## Dependencies
 
-Only an optional local cache - 'stale-lru-cache'. This was chosen as it outperforms alternatives in [benchmarks](https://github.com/cyberthom/stale-lru-cache/tree/master/benchmark/results) and enables you to get going quickly. You can easily override this with Redis or any other - [see API](#api). 
+Only one - an optional local cache ('stale-lru-cache'). This was chosen as it outperforms alternatives in [benchmarks](https://github.com/cyberthom/stale-lru-cache/tree/master/benchmark/results) and enables you to get going quickly. You can easily override this with Redis or any other - [see API](#api). 
 
 
 ## Initialize
 
 ```javascript
 const OutputCache = require('outputcache');
-const xoc = new OutputCache({ varyByQuery: ['page', 'sort'] }); //see api below for more options
+const xoc = new OutputCache({options}); //see api below
 ```
 
 
@@ -205,7 +205,9 @@ You can configure outputcache to automatically skip caching responses based on y
 
 ## Performance
 
-Outputcache has more impact on your application performance the more it gets hit, to help maximise performance:
+**Note:** Always test, benchmark and gather metrics in the wild based on real user behaviour - never make assumptions.
+
+Output caching has more impact on application performance the more it gets hit - in particular for Node, where any computational or synchronous overhead is particularly expensive. To help maximise performance:
 
 - Ensure cache keys are as simple as possible; disable querystring and cookie based caching or only allow specific querystring args to be used as keys.
 - Use [case-insensitive cache keys](#api) if your application [supports them](#troubleshooting).
@@ -213,6 +215,7 @@ Outputcache has more impact on your application performance the more it gets hit
 - Increase your cache size; V8 only gets 1.72GB memory assigned to the process by default, ensure you set a sensible maxItems ceiling, or if you have memory available you could increase --max_old_space_size=MB.
 - Increase ttl of responses; if you can set a longer ttl, you should. In cases where some responses can be cached for a longer time than others, you should use cache-control headers to vary ttl for different responses and increase it where possible.
 - Cache 5xx (default) - errors are expensive, especially exceptions. Throwing the same errors for the same requests will severely impact performance - you should log them and outputcache can serve subsequent error responses from cache.
+- Use as a 2nd tier cache - depending on your architecure, its often beneficial to cache output in addition to data. 
 
 Under a high ratio of cache hits to misses, you will begin to see an inverse relationship between requests and latency
 
@@ -225,13 +228,14 @@ Under a high ratio of cache hits to misses, you will begin to see an inverse rel
 
 - You can only cache serializable data - if you override the set or get cacheProvider methods, you should avoid stringifying or parsing the cache item - outputcache does this internally already. 
 - If you are only seeing x-output-cache : 'ms' headers in the response, you might be throwing an error in your cache provider or a custom get/set method - see [silent failover](#silent-failover). 
-- If your application performs redirects in routes or middleware where outputcache is used, you should place outputcache before these.
+- If your application performs redirects in routes or middleware where outputcache is used, you should place outputcache before these.  
 - `options.caseSensitive` - if you disable this option (enabled by default), ensure your application is not case-sensitive to querystring or cookie arguments, if these are enabled too.
 - `options.varyByCookies` - you must register a cookier parser before outputcache in the req/res lifecycle. This is usually done at the http server level using a module such as cookie-parser. In general, you should place outputcache after cookie and body parsers but before other middleware.
 
 
 ## TODO:
 
-- Add integration tests for common use cases
+- Add integration tests for common use cases.
+- Add load test data.
+- Add benchmarks.
 - Method to support any node server (without middleware).
-- Add load test data and benchmarks.
