@@ -214,8 +214,6 @@ Output caching has more impact on application performance the more it gets hit -
 - Place outputcache as early in the request/response pipeline as possible; to minimise as much code as possible from executing, you should execute outputcache as the first middleware in your routing (after any cookie, body parsers have fired at the server level).
 - Increase your cache size; V8 only gets 1.72GB memory assigned to the process by default, ensure you set a sensible maxItems ceiling, or if you have memory available you could increase --max_old_space_size=MB.
 - Increase ttl of responses; if you can set a longer ttl, you should. In cases where some responses can be cached for a longer time than others, you should use cache-control headers to vary ttl for different responses and increase it where possible.
-- Cache 5xx (default) - errors are expensive, especially exceptions. Throwing the same errors for the same requests will severely impact performance - you should log them and outputcache can serve subsequent error responses from cache.
-- Use as a 2nd tier cache - depending on your architecure, its often beneficial to cache output in addition to data. 
 
 Under a high ratio of cache hits to misses, you will begin to see an inverse relationship between requests and latency
 
@@ -231,11 +229,3 @@ Under a high ratio of cache hits to misses, you will begin to see an inverse rel
 - If your application performs redirects in routes or middleware where outputcache is used, you should place outputcache before these.  
 - `options.caseSensitive` - if you disable this option (enabled by default), ensure your application is not case-sensitive to querystring or cookie arguments, if these are enabled too.
 - `options.varyByCookies` - you must register a cookier parser before outputcache in the req/res lifecycle. This is usually done at the http server level using a module such as cookie-parser. In general, you should place outputcache after cookie and body parsers but before other middleware.
-
-
-## TODO:
-
-- Add integration tests for common use cases.
-- Add load test data.
-- Add benchmarks.
-- Method to support any node server (without middleware).
