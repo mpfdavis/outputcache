@@ -229,5 +229,3 @@ Under a high ratio of cache hits to misses, you will begin to see an inverse rel
 - If your application performs redirects in routes or middleware where outputcache is used, you should place outputcache before these.  
 - `options.caseSensitive` - if you disable this option (enabled by default), ensure your application is not case-sensitive to querystring or cookie arguments, if these are enabled too.
 - `options.varyByCookies` - you must register a cookier parser before outputcache in the req/res lifecycle. This is usually done at the http server level using a module such as cookie-parser. In general, you should place outputcache after cookie and body parsers but before other middleware.
-
-##TestTESTtesttesttest 
