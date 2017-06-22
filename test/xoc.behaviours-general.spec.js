@@ -12,6 +12,7 @@ var cacheCaseIns = new OutputCache({ caseSensitive: false });
 var cache = new OutputCache({ varyByQuery: true, staleWhileRevalidate: 700, varyByCookies: ["hello"] });
 
 app.get("/GetJSON", cache.middleware, function (req, res) {
+    
     res.setHeader("Content-Type", "application/json");
     res.status(200).json({ hello: "world" });
 });

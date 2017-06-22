@@ -1,6 +1,6 @@
 {
   "name": "outputcache",
-  "version": "5.3.0",
+  "version": "5.3.1",
   "description": "Cache api responses, react and more using redis, memcached or any other cache provider.",
   "main": "bin/outputcache.js",
   "scripts": {
@@ -9,7 +9,6 @@
     "compile": "babel src --out-dir bin --presets es2015",
     "prepublish": "npm run compile"
   },
-  "readme": "README.md",
   "repository": {
     "type": "git",
     "url": "https://github.com/mpfdavis/outputcache"
@@ -38,8 +37,7 @@
     "lru cache",
     "performance",
     "cache",
-    "caching",
-    "memory"
+    "caching"
   ],
   "author": "Matthew Davis",
   "license": "ISC",
