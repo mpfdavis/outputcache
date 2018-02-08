@@ -40,7 +40,7 @@ module.exports = class OutputCache extends EventEmitter {
 
     middleware(req, res, next) {
 
-        const urlParsed = url.parse(req.url, true);
+        const urlParsed = url.parse(req.originalUrl || req.url, true);
         const isSkipForced = this.allowSkip && ((req.headers[this._header] === "ms" || urlParsed.query.cache === "false" || (req.cookies && req.cookies[this._header] === "ms")));
         let cacheKey = `p-${urlParsed.pathname}`;
 
