@@ -51,12 +51,12 @@ The following example places Outputcache before "api.middleware" - this ensures 
 const xoc = new OutputCache();
 
 app.get('/api/:channel', xoc.middleware, api.middleware, (req, res) => {    
-  res.set({'Cache-Control': 600});  
+  res.set({'Cache-Control': 'max-age=600'});  
   res.json({hello:'world'}); //will be hit once every 10 minutes 
 });
 
 app.get('/', xoc.middleware, api.middleware, (req, res) => {  
-  res.set({'Cache-Control': 600});  
+  res.set({'Cache-Control': 'max-age=600'});  
   res.render('hello', {hello:'world'}); //will be hit once every 10 minutes 
 });
 ```
@@ -69,7 +69,7 @@ const xoc = new OutputCache();
 app.use(xoc);
 
 app.get('/api/:channel', xoc.middleware, api.middleware, (req, res) => {    
-  res.set({'Cache-Control': 600});  
+  res.set({'Cache-Control': 'max-age=600'});  
   res.json({hello:'world'}); //will be hit once every 10 minutes 
 });
 ```
@@ -82,7 +82,7 @@ Redirects can be expensive if they are made based on data, these are cached the 
 const xoc = new OutputCache();
 
 app.get('/api/:channel', xoc.middleware, api.middleware, (req, res) => {    
-  res.set({'Cache-Control': 600});  
+  res.set({'Cache-Control': 'max-age=600'});  
   res.redirect(301, '/api/us/:channel'); //will be hit once every 600 minutes 
 });
 ```
